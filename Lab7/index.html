@@ -1,402 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practical 7 – Data Cleaning, Normalization & Storytelling | K.P. Singh</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);color:var(--color-text-primary)}
-.wrap{padding:1.5rem 0;max-width:680px}
-h1{font-size:22px;font-weight:500;margin-bottom:0.25rem}
-h2{font-size:18px;font-weight:500;margin:2rem 0 0.75rem}
-h3{font-size:16px;font-weight:500;margin:1rem 0 0.5rem}
-p{font-size:15px;line-height:1.7;color:var(--color-text-secondary);margin-bottom:0.75rem}
-.badge{display:inline-block;font-size:12px;padding:3px 10px;border-radius:var(--border-radius-md);font-weight:500;margin-right:6px}
-.badge-blue{background:#E6F1FB;color:#0C447C}
-.badge-teal{background:#E1F5EE;color:#085041}
-.badge-amber{background:#FAEEDA;color:#633806}
-.step-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:1rem}
-.step-num{min-width:28px;height:28px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;margin-top:2px}
-.step-content{flex:1}
-.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
-.card-warn{border-left:3px solid #EF9F27;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;background:var(--color-background-warning);padding:0.75rem 1rem;margin-bottom:1rem}
-.card-success{border-left:3px solid #1D9E75;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;background:var(--color-background-success);padding:0.75rem 1rem;margin-bottom:1rem}
-.card-info{border-left:3px solid #378ADD;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;background:var(--color-background-info);padding:0.75rem 1rem;margin-bottom:1rem}
-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:1rem}
-th{background:var(--color-background-secondary);font-weight:500;padding:8px 12px;text-align:left;border:0.5px solid var(--color-border-tertiary);font-size:13px}
-td{padding:8px 12px;border:0.5px solid var(--color-border-tertiary);vertical-align:top}
-.dirty{background:#FCEBEB;color:#A32D2D;font-weight:500}
-.clean{background:#EAF3DE;color:#3B6D11;font-weight:500}
-.formula-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:0.75rem 1rem;font-family:var(--font-mono);font-size:14px;margin:0.5rem 0 1rem;color:var(--color-text-primary)}
-.tabs{display:flex;gap:4px;margin-bottom:1rem;border-bottom:0.5px solid var(--color-border-tertiary)}
-.tab{padding:8px 16px;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary);background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-sans)}
-.tab.active{color:var(--color-text-info);border-bottom:2px solid #378ADD;font-weight:500}
-.tab-panel{display:none}.tab-panel.active{display:block}
-.interactive-area{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
-label{font-size:13px;color:var(--color-text-secondary);display:block;margin-bottom:4px}
-select,input{font-size:14px;width:100%;margin-bottom:0.75rem;font-family:var(--font-sans)}
-.result-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:0.75rem 1rem;min-height:40px;font-size:14px;color:var(--color-text-primary)}
-.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
-.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:0.75rem;text-align:center}
-.metric-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
-.metric-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
-.tag-dirty{background:#FCEBEB;color:#A32D2D;font-size:12px;padding:2px 8px;border-radius:var(--border-radius-md);font-weight:500}
-.tag-fixed{background:#EAF3DE;color:#3B6D11;font-size:12px;padding:2px 8px;border-radius:var(--border-radius-md);font-weight:500}
-.divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:2rem 0}
-.answer-toggle{font-size:13px;color:var(--color-text-info);cursor:pointer;background:none;border:none;padding:0;font-family:var(--font-sans);text-decoration:underline}
-.answer-box{display:none;background:var(--color-background-info);border-radius:var(--border-radius-md);padding:0.75rem 1rem;font-size:14px;margin-top:0.5rem}
+:root {
+  --navy: #0a0e1a;
+  --navy2: #111827;
+  --panel: #161d2e;
+  --border: #1e2d45;
+  --accent: #f97316;
+  --accent2: #06b6d4;
+  --success: #10b981;
+  --danger: #ef4444;
+  --yellow: #fbbf24;
+  --purple: #a78bfa;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --glass: rgba(255,255,255,0.04);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HOME BUTTON */
+.home-btn {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 200;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.home-btn:hover { transform: scale(1.08); }
+
+/* HEADER */
+.hbar {
+  height: 58px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 36px;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.hbar-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hbar-chip {
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.68rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+/* HERO */
+.hero {
+  padding: 60px 60px 40px;
+  background: radial-gradient(ellipse at 55% 40%, #192344 0%, #0a0e1a 65%);
+  border-bottom: 1px solid var(--border);
+}
+.hero-kicker {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent2);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.1;
+  background: linear-gradient(135deg, #fff 30%, var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px;
+}
+.hero-sub {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.badges { display: flex; gap: 10px; flex-wrap: wrap; }
+.badge {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+.badge span { color: var(--accent); font-weight: 700; }
+.badge.teal span { color: var(--accent2); }
+
+/* TABS */
+.tab-bar {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 0 60px;
+  overflow-x: auto;
+  position: sticky;
+  top: 58px;
+  z-index: 99;
+}
+.tab-btn {
+  padding: 16px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+.tab-btn.active {
+  color: var(--accent2);
+  border-bottom-color: var(--accent2);
+}
+.tab-btn:hover { color: var(--text); }
+
+/* CONTENT PANELS */
+.panels { padding: 48px 60px 80px; max-width: 1000px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease both; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* TYPOGRAPHY */
+.slide-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+  color: #fff;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.slide-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--border), transparent);
+}
+.hl { color: var(--accent); }
+.hl2 { color: var(--accent2); }
+h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 28px 0 12px;
+}
+
+/* CARDS */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--accent), var(--accent2));
+}
+.card.accent2::before { background: linear-gradient(to right, var(--accent2), var(--purple)); }
+.card.success-card::before { background: linear-gradient(to right, var(--success), var(--accent2)); }
+.card.danger-card::before { background: linear(to right, var(--danger), var(--purple)); }
+.card.yellow-card::before { background: linear-gradient(to right, var(--yellow), var(--accent)); }
+.card-title { font-weight: 700; font-size: 1rem; color: #fff; margin-bottom: 8px; }
+.card-body { color: var(--muted); font-size: 0.92rem; line-height: 1.65; }
+
+/* INFO STRIP */
+.info-strip {
+  border-left: 3px solid var(--accent2);
+  background: rgba(6,182,212,0.07);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+}
+.warn-strip {
+  border-left: 3px solid var(--yellow);
+  background: rgba(251,191,36,0.07);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+}
+.success-strip {
+  border-left: 3px solid var(--success);
+  background: rgba(16,185,129,0.07);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+}
+.strip-label {
+  font-size: 0.72rem;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: var(--accent2);
+  font-weight: 700;
+}
+.warn-strip .strip-label { color: var(--yellow); }
+.success-strip .strip-label { color: var(--success); }
+
+/* TABLES */
+.table-wrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  background: var(--border);
+  color: var(--accent2);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  padding: 10px 14px;
+  text-align: left;
+  letter-spacing: 0.06em;
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.92rem;
+  color: var(--text);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+td.dirty {
+  background: rgba(239,68,68,0.12);
+  color: #f87171;
+  font-weight: 600;
+}
+td.clean {
+  background: rgba(16,185,129,0.12);
+  color: #34d399;
+  font-weight: 600;
+}
+
+/* PILLS */
+.pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.pill-success { background: rgba(16,185,129,0.15); color: var(--success); }
+.pill-danger  { background: rgba(239,68,68,0.15);  color: var(--danger); }
+.pill-yellow  { background: rgba(251,191,36,0.15); color: var(--yellow); }
+.pill-blue    { background: rgba(6,182,212,0.15);  color: var(--accent2); }
+
+/* FORMULA BOX */
+.formula-box {
+  background: linear-gradient(135deg, #0f2234, #0d1a2b);
+  border: 1px solid var(--accent2);
+  border-radius: 10px;
+  padding: 16px 22px;
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--accent2);
+  text-align: center;
+  margin: 12px 0;
+  letter-spacing: 0.04em;
+}
+
+/* STEPS */
+.step-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.step-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: border-color 0.2s;
+}
+.step-list li:hover { border-color: var(--accent2); }
+.step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem; font-weight: 700;
+  color: #fff; flex-shrink: 0;
+}
+.step-text { font-size: 0.92rem; line-height: 1.55; color: var(--text); padding-top: 4px; }
+
+/* TWO COL */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* INTERACTIVE */
+.interactive-box {
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  padding: 24px;
+  position: relative;
+  margin-bottom: 16px;
+}
+.interactive-box.blue { border-color: var(--accent2); }
+.interactive-label {
+  position: absolute;
+  top: -12px; left: 18px;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.interactive-box.blue .interactive-label { background: var(--accent2); }
+
+/* INPUTS */
+label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 5px;
+  display: block;
+  font-family: 'Space Mono', monospace;
+}
+input[type=number], select {
+  width: 100%;
+  background: var(--navy);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+  margin-bottom: 12px;
+}
+input[type=number]:focus, select:focus { border-color: var(--accent2); }
+
+.solve-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 26px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.solve-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+.result-box {
+  min-height: 50px;
+  background: rgba(6,182,212,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+/* RANGE SLIDER */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  background: var(--border);
+  margin-bottom: 12px;
+  padding: 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent2);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* TOGGLE BUTTON */
+.toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--accent2);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 10px;
+}
+.toggle-btn:hover { border-color: var(--accent2); background: rgba(6,182,212,0.05); }
+
+.answer-box {
+  display: none;
+  margin-top: 12px;
+  background: rgba(16,185,129,0.07);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+/* METRICS */
+.metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+.metric {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.metric-val { font-family: 'Space Mono', monospace; font-size: 1.6rem; font-weight: 700; }
+.metric-lbl { font-size: 0.78rem; color: var(--muted); margin-top: 5px; }
+
+/* VIVA CARDS */
+.viva-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.viva-card:hover { border-color: var(--accent2); }
+.viva-q {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.q-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--accent2);
+  background: rgba(6,182,212,0.1);
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+/* DEFS TABLE */
+.def-row { display: grid; grid-template-columns: 160px 1fr; gap: 14px; align-items: start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.def-row:last-child { border-bottom: none; }
+.def-term { font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--accent2); font-weight: 700; }
+.def-body { font-size: 0.92rem; color: var(--text); line-height: 1.55; }
+
+/* SCATTER CANVAS */
+canvas { border-radius: 10px; display: block; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero { padding: 40px 24px 30px; }
+  .tab-bar { padding: 0 16px; }
+  .panels { padding: 30px 24px 60px; }
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .metric-row { grid-template-columns: 1fr 1fr; }
+}
 </style>
+</head>
+<body>
 
-<div class="wrap">
+<!-- HOME BUTTON -->
+<a href="https://kpsingh.in" class="home-btn" title="Back to Homepage" target="_blank">
+  <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3z"/></svg>
+</a>
 
-<h1>Practical 7 — Data Cleaning, Normalization & Storytelling</h1>
-<p style="margin-top:0.25rem"><span class="badge badge-blue">Sem 1 Lab</span><span class="badge badge-teal">Microsoft Excel</span><span class="badge badge-amber">BCA</span></p>
-
-<div class="card-info">
-  <strong style="color:#0C447C;font-size:15px">What will you learn?</strong>
-  <p style="margin-top:0.4rem;margin-bottom:0">How to spot bad data, fix it, scale it fairly, and turn numbers into a real story — using a student marks dataset in Excel.</p>
+<!-- HEADER -->
+<div class="hbar">
+  <span class="hbar-title">Introduction to Data Science · BCA Sem I · Practical 7</span>
+  <span class="hbar-chip">LAB 7</span>
 </div>
 
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('overview')">Overview</button>
-  <button class="tab" onclick="switchTab('clean')">Cleaning</button>
-  <button class="tab" onclick="switchTab('normalize')">Normalization</button>
-  <button class="tab" onclick="switchTab('story')">Storytelling</button>
-  <button class="tab" onclick="switchTab('viva')">Viva Prep</button>
-</div>
-
-<!-- OVERVIEW TAB -->
-<div class="tab-panel active" id="tab-overview">
-  <h2>The raw dataset — what's wrong with it?</h2>
-  <p>Open Excel and look at this data. Before you do any analysis, you need to fix the problems. Can you spot them?</p>
-
-  <table>
-    <tr><th>Reg No</th><th>Name</th><th>Gender</th><th>Attendance %</th><th>Study Hrs</th><th>Marks</th><th>Payment</th></tr>
-    <tr><td>101</td><td>Aman</td><td>Male</td><td>85</td><td>3</td><td>78</td><td>UPI</td></tr>
-    <tr><td>102</td><td>Riya</td><td class="dirty">F ✗</td><td>90</td><td>4</td><td class="dirty">— missing</td><td>Cash</td></tr>
-    <tr><td>103</td><td>Kabir</td><td class="dirty">male ✗</td><td class="dirty">110 ✗</td><td>2</td><td>65</td><td class="dirty">upi ✗</td></tr>
-    <tr><td>104</td><td>Ananya</td><td>Female</td><td>75</td><td class="dirty">— missing</td><td>82</td><td>Card</td></tr>
-    <tr><td>105</td><td>Rahul</td><td class="dirty">M ✗</td><td>60</td><td>1</td><td class="dirty">500 ✗</td><td>UPI</td></tr>
-    <tr><td>106</td><td>Sneha</td><td>Female</td><td>88</td><td>3</td><td>76</td><td class="dirty">cash ✗</td></tr>
-    <tr><td>107</td><td>Arjun</td><td>Male</td><td>40</td><td>0</td><td>30</td><td>UPI</td></tr>
-    <tr><td>108</td><td>Kavya</td><td class="dirty">F ✗</td><td>95</td><td>5</td><td>89</td><td>Cash</td></tr>
-  </table>
-
-  <h3>3 types of problems highlighted above</h3>
-
-  <div class="step-row">
-    <div class="step-num">1</div>
-    <div class="step-content">
-      <strong>Missing values</strong>
-      <p>Riya's Marks = "—" (blank). Ananya's Study Hours = "—" (blank). You can't leave blanks in a dataset — it breaks averages and formulas.</p>
-    </div>
-  </div>
-
-  <div class="step-row">
-    <div class="step-num">2</div>
-    <div class="step-content">
-      <strong>Inconsistent formats</strong>
-      <p>Gender column has: Male, male, M, F, Female — all meaning the same thing but written differently. Payment has: UPI, upi, Cash, cash. Excel treats these as totally different values.</p>
-    </div>
-  </div>
-
-  <div class="step-row">
-    <div class="step-num">3</div>
-    <div class="step-content">
-      <strong>Outliers (suspicious extreme values)</strong>
-      <p>Rahul's Marks = 500 (impossible — max is 100). Kabir's Attendance = 110% (impossible — can't exceed 100%). These are data entry errors.</p>
-    </div>
-  </div>
-
-  <div class="card-warn">
-    <strong style="color:#633806">Why does this matter?</strong>
-    <p style="margin-top:0.3rem;margin-bottom:0;color:#633806">If you calculate average marks with 500 included, your answer is wildly wrong. Dirty data = wrong decisions.</p>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-kicker">K.P. Singh · Introduction to Data Science</div>
+  <div class="hero-title">Data Cleaning, Normalization<br>& Storytelling</div>
+  <div class="hero-sub">Learn to spot bad data, fix it, scale it fairly, and turn numbers into a real story — using a student marks dataset in Excel.</div>
+  <div class="badges">
+    <div class="badge">🧹 <span>Data Cleaning</span></div>
+    <div class="badge teal">📏 <span>Normalization</span></div>
+    <div class="badge">📊 <span>Storytelling</span></div>
+    <div class="badge teal">🎓 BCA <span>Sem I</span></div>
   </div>
 </div>
 
-<!-- CLEANING TAB -->
-<div class="tab-panel" id="tab-clean">
-  <h2>Step-by-step: fixing the data in Excel</h2>
-
-  <h3>Step 1 — Fix missing values</h3>
-  <div class="card-info">
-    <strong style="color:#0C447C">Rule:</strong>
-    <p style="margin-bottom:0;margin-top:0.3rem;color:#185FA5">Missing Marks → replace with AVERAGE of other marks. Missing Study Hours → replace with MEDIAN of other study hours. Why median for hours? Median is not affected by extreme values.</p>
-  </div>
-
-  <div class="interactive-area">
-    <strong style="font-size:14px">Try it — calculate the replacement values</strong>
-    <p style="font-size:13px;margin-top:0.4rem">Known marks (excluding missing & outlier): 78, 65, 82, 76, 30, 89</p>
-    <p style="font-size:13px">Known study hours (excluding missing): 3, 4, 2, 1, 3, 0, 5</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.75rem">
-      <div>
-        <label>Riya's missing Marks → use AVERAGE</label>
-        <div class="formula-box">=AVERAGE(F2,F4,F5,F7,F8,F9)</div>
-        <button class="answer-toggle" onclick="tog('avg-ans')">Show answer</button>
-        <div class="answer-box" id="avg-ans">Average = (78+65+82+76+30+89) ÷ 6 = <strong>420 ÷ 6 = 70</strong><br>So Riya's marks → 70</div>
-      </div>
-      <div>
-        <label>Ananya's missing Study Hours → use MEDIAN</label>
-        <div class="formula-box">=MEDIAN(E2,E3,E4,E6,E8,E9,E10)</div>
-        <button class="answer-toggle" onclick="tog('med-ans')">Show answer</button>
-        <div class="answer-box" id="med-ans">Sorted: 0, 1, 2, 3, 3, 4, 5 → middle value = <strong>3</strong><br>So Ananya's hours → 3</div>
-      </div>
-    </div>
-  </div>
-
-  <h3>Step 2 — Standardize inconsistent text</h3>
-  <p>In Excel, use Find & Replace (Ctrl+H) or type the correct values manually. Here's the standard format:</p>
-
-  <table>
-    <tr><th>Column</th><th>Dirty values found</th><th>Correct standard value</th></tr>
-    <tr><td>Gender</td><td class="dirty">F, M, male, Female</td><td class="clean">Male / Female</td></tr>
-    <tr><td>Payment</td><td class="dirty">upi, cash, UPI, Cash</td><td class="clean">UPI / Cash / Card</td></tr>
-  </table>
-
-  <h3>Step 3 — Handle outliers</h3>
-  <p>Two outliers found:</p>
-
-  <div class="card">
-    <table style="margin-bottom:0">
-      <tr><th>Student</th><th>Column</th><th>Dirty value</th><th>What to do</th><th>Fixed value</th></tr>
-      <tr><td>Rahul (105)</td><td>Marks</td><td class="dirty">500</td><td>Replace with mean of valid marks</td><td class="clean">70</td></tr>
-      <tr><td>Kabir (103)</td><td>Attendance %</td><td class="dirty">110%</td><td>Cap at 100 OR remove row</td><td class="clean">100 (or exclude)</td></tr>
-    </table>
-  </div>
-
-  <div class="interactive-area">
-    <strong style="font-size:14px">Quick check — how much did the outlier hurt us?</strong>
-    <p style="font-size:13px;margin-top:0.4rem;margin-bottom:0.75rem">Click below to see how average marks changes before vs after cleaning:</p>
-
-    <div class="metric-grid">
-      <div class="metric">
-        <div class="metric-val" style="color:#A32D2D">162.6</div>
-        <div class="metric-lbl">Average WITH 500 included</div>
-      </div>
-      <div class="metric">
-        <div class="metric-val" style="color:#3B6D11">68.75</div>
-        <div class="metric-lbl">Average AFTER cleaning</div>
-      </div>
-      <div class="metric">
-        <div class="metric-val" style="color:#633806">93.85</div>
-        <div class="metric-lbl">Difference — that's the damage!</div>
-      </div>
-    </div>
-    <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:0">One wrong entry (500) inflated the average by nearly 94 marks. This is why outliers are dangerous.</p>
-  </div>
-
-  <h3>The cleaned dataset</h3>
-  <table>
-    <tr><th>Reg No</th><th>Name</th><th>Gender</th><th>Attendance %</th><th>Study Hrs</th><th>Marks</th><th>Payment</th></tr>
-    <tr><td>101</td><td>Aman</td><td class="clean">Male</td><td>85</td><td>3</td><td>78</td><td class="clean">UPI</td></tr>
-    <tr><td>102</td><td>Riya</td><td class="clean">Female</td><td>90</td><td>4</td><td class="clean">70 ← filled</td><td>Cash</td></tr>
-    <tr><td>103</td><td>Kabir</td><td class="clean">Male</td><td class="clean">100 ← capped</td><td>2</td><td>65</td><td class="clean">UPI</td></tr>
-    <tr><td>104</td><td>Ananya</td><td>Female</td><td>75</td><td class="clean">3 ← filled</td><td>82</td><td>Card</td></tr>
-    <tr><td>105</td><td>Rahul</td><td class="clean">Male</td><td>60</td><td>1</td><td class="clean">70 ← replaced</td><td>UPI</td></tr>
-    <tr><td>106</td><td>Sneha</td><td>Female</td><td>88</td><td>3</td><td>76</td><td class="clean">Cash</td></tr>
-    <tr><td>107</td><td>Arjun</td><td>Male</td><td>40</td><td>0</td><td>30</td><td>UPI</td></tr>
-    <tr><td>108</td><td>Kavya</td><td class="clean">Female</td><td>95</td><td>5</td><td>89</td><td>Cash</td></tr>
-  </table>
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('overview', this)">📋 Overview</button>
+  <button class="tab-btn" onclick="switchTab('clean', this)">🧹 Cleaning</button>
+  <button class="tab-btn" onclick="switchTab('normalize', this)">📏 Normalization</button>
+  <button class="tab-btn" onclick="switchTab('analysis', this)">📊 Analysis</button>
+  <button class="tab-btn" onclick="switchTab('story', this)">💬 Storytelling</button>
+  <button class="tab-btn" onclick="switchTab('viva', this)">🧠 Viva Prep</button>
 </div>
 
-<!-- NORMALIZE TAB -->
-<div class="tab-panel" id="tab-normalize">
-  <h2>What is normalization and why do we need it?</h2>
-  <div class="card-info">
-    <p style="margin-bottom:0;color:#185FA5">Imagine comparing marks (out of 100) with study hours (0–5). They're on completely different scales. Normalization brings everything to a 0–1 scale so we can compare fairly.</p>
+<!-- PANELS -->
+<div class="panels">
+
+  <!-- ═══════ OVERVIEW ═══════ -->
+  <div class="panel active" id="panel-overview">
+    <div class="slide-heading">The Raw Dataset — <span class="hl">What's Wrong?</span></div>
+
+    <div class="info-strip">
+      <div class="strip-label">How to use this page</div>
+      Open Excel alongside this page. Read each section, then perform the steps in Excel. Highlighted cells in red below = problems to fix.
+    </div>
+
+    <p style="color:var(--muted);margin-bottom:16px">Before any analysis, you must inspect the data. This dataset has <strong style="color:#fff">3 types of problems</strong>. Can you spot them before reading below?</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Reg No</th><th>Name</th><th>Gender</th><th>Attendance %</th><th>Study Hrs</th><th>Marks</th><th>Payment</th></tr>
+        <tr><td>101</td><td>Aman</td><td>Male</td><td>85</td><td>3</td><td>78</td><td>UPI</td></tr>
+        <tr><td>102</td><td>Riya</td><td class="dirty">F ← wrong format</td><td>90</td><td>4</td><td class="dirty">— missing</td><td>Cash</td></tr>
+        <tr><td>103</td><td>Kabir</td><td class="dirty">male ← wrong case</td><td class="dirty">110 ← impossible!</td><td>2</td><td>65</td><td class="dirty">upi ← wrong case</td></tr>
+        <tr><td>104</td><td>Ananya</td><td>Female</td><td>75</td><td class="dirty">— missing</td><td>82</td><td>Card</td></tr>
+        <tr><td>105</td><td>Rahul</td><td class="dirty">M ← wrong format</td><td>60</td><td>1</td><td class="dirty">500 ← impossible!</td><td>UPI</td></tr>
+        <tr><td>106</td><td>Sneha</td><td>Female</td><td>88</td><td>3</td><td>76</td><td class="dirty">cash ← wrong case</td></tr>
+        <tr><td>107</td><td>Arjun</td><td>Male</td><td>40</td><td>0</td><td>30</td><td>UPI</td></tr>
+        <tr><td>108</td><td>Kavya</td><td class="dirty">F ← wrong format</td><td>95</td><td>5</td><td>89</td><td>Cash</td></tr>
+      </table>
+    </div>
+
+    <h3>3 Types of Problems Found</h3>
+    <ul class="step-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong style="color:#fff">Missing Values</strong> — Riya's Marks = blank. Ananya's Study Hours = blank.<br>
+          <span style="color:var(--muted)">You cannot leave blanks — they break averages and Excel formulas.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong style="color:#fff">Inconsistent Formats</strong> — Gender has: Male, male, M, F, Female (all meaning the same thing!). Payment has: UPI, upi, Cash, cash.<br>
+          <span style="color:var(--muted)">Excel treats "M" and "Male" as completely different. COUNTIF will give wrong results.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong style="color:#fff">Outliers</strong> — Rahul's Marks = 500 (max is 100, so this is a data entry error). Kabir's Attendance = 110% (impossible).<br>
+          <span style="color:var(--muted)">One wrong extreme value can ruin the entire class average.</span>
+        </div>
+      </li>
+    </ul>
+
+    <div class="warn-strip" style="margin-top:24px">
+      <div class="strip-label">Why This Matters</div>
+      Average marks WITH 500 included = <strong style="color:var(--yellow)">~163</strong> &nbsp;|&nbsp;
+      Average marks AFTER cleaning = <strong style="color:var(--success)">~69</strong> &nbsp;|&nbsp;
+      Difference = <strong style="color:var(--danger)">~94 marks</strong> — just because of one wrong entry!
+    </div>
   </div>
 
-  <h3>The formula</h3>
-  <div class="formula-box">Normalized Value = (X − Min) / (Max − Min)</div>
+  <!-- ═══════ CLEANING ═══════ -->
+  <div class="panel" id="panel-clean">
+    <div class="slide-heading">Part B — <span class="hl">Data Cleaning</span></div>
 
-  <p>Min marks (after cleaning) = <strong>30</strong> (Arjun) &nbsp;|&nbsp; Max marks = <strong>89</strong> (Kavya)</p>
+    <!-- STEP 1 -->
+    <h3>Step 1 — Handle Missing Values</h3>
+    <div class="info-strip">
+      <div class="strip-label">Rule</div>
+      Missing <strong>Marks</strong> → replace with <strong style="color:var(--accent2)">AVERAGE</strong> of all other valid marks &nbsp;|&nbsp;
+      Missing <strong>Study Hours</strong> → replace with <strong style="color:var(--accent2)">MEDIAN</strong><br>
+      <span style="color:var(--muted);font-size:0.88rem">Use MEDIAN for hours because it is not affected by extreme values the way AVERAGE is.</span>
+    </div>
 
-  <div class="interactive-area">
-    <strong style="font-size:14px">Practice — normalize any student's marks</strong>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.75rem">
+    <div class="two-col">
+      <div class="interactive-box blue" style="margin-top:8px">
+        <div class="interactive-label">🧮 CALCULATE — Riya's Marks</div>
+        <div style="margin-top:14px;font-size:0.88rem;color:var(--muted)">Valid marks (ignoring 500 & blank): 78, 65, 82, 76, 30, 89</div>
+        <div class="formula-box" style="font-size:0.9rem;margin-top:10px">=AVERAGE(78, 65, 82, 76, 30, 89)</div>
+        <button class="toggle-btn" onclick="toggleAnswer('avg-ans')">▶ Show Answer</button>
+        <div class="answer-box" id="avg-ans">
+          Sum = 78 + 65 + 82 + 76 + 30 + 89 = <strong>420</strong><br>
+          Count = 6<br>
+          Average = 420 ÷ 6 = <strong style="color:var(--success);font-size:1.1rem">70</strong><br><br>
+          ✅ Replace Riya's blank marks with <strong>70</strong>
+        </div>
+      </div>
+      <div class="interactive-box blue" style="margin-top:8px">
+        <div class="interactive-label">🧮 CALCULATE — Ananya's Study Hours</div>
+        <div style="margin-top:14px;font-size:0.88rem;color:var(--muted)">Known study hours: 3, 4, 2, 1, 3, 0, 5</div>
+        <div class="formula-box" style="font-size:0.9rem;margin-top:10px">=MEDIAN(3, 4, 2, 1, 3, 0, 5)</div>
+        <button class="toggle-btn" onclick="toggleAnswer('med-ans')">▶ Show Answer</button>
+        <div class="answer-box" id="med-ans">
+          Sorted: 0, 1, 2, <strong>3</strong>, 3, 4, 5<br>
+          Middle value (4th of 7) = <strong style="color:var(--success);font-size:1.1rem">3</strong><br><br>
+          ✅ Replace Ananya's blank hours with <strong>3</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <h3 style="margin-top:32px">Step 2 — Standardize Inconsistent Values</h3>
+    <p style="color:var(--muted);margin-bottom:14px">In Excel: use <strong style="color:#fff">Ctrl + H</strong> (Find & Replace). Or simply click the wrong cell and type the correct value.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Column</th><th>Wrong values in data</th><th>Correct standard</th><th>Excel method</th></tr>
+        <tr>
+          <td>Gender</td>
+          <td><span class="pill pill-danger">F</span> <span class="pill pill-danger">M</span> <span class="pill pill-danger">male</span></td>
+          <td><span class="pill pill-success">Male</span> <span class="pill pill-success">Female</span></td>
+          <td>Find "F" → Replace "Female" etc.</td>
+        </tr>
+        <tr>
+          <td>Payment</td>
+          <td><span class="pill pill-danger">upi</span> <span class="pill pill-danger">cash</span></td>
+          <td><span class="pill pill-success">UPI</span> <span class="pill pill-success">Cash</span></td>
+          <td>Find "upi" → Replace "UPI"</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- STEP 3 -->
+    <h3 style="margin-top:32px">Step 3 — Handle Outliers</h3>
+
+    <div class="two-col">
+      <div class="card danger-card">
+        <div class="card-title">Rahul — Marks = 500</div>
+        <div class="card-body">This is a data entry error. Marks cannot exceed 100.<br><br>
+        <strong style="color:#fff">Fix:</strong> Replace 500 with the mean of valid marks = <span class="pill pill-success">70</span></div>
+      </div>
+      <div class="card danger-card">
+        <div class="card-title">Kabir — Attendance = 110%</div>
+        <div class="card-body">Attendance cannot exceed 100%. This is physically impossible.<br><br>
+        <strong style="color:#fff">Fix:</strong> Cap at <span class="pill pill-success">100</span> OR remove the row entirely (justify your choice)</div>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE damage calculator -->
+    <div class="interactive-box" style="margin-top:8px">
+      <div class="interactive-label">📉 SEE THE DAMAGE — Outlier Impact</div>
+      <div style="margin-top:14px">
+        <div class="metric-row">
+          <div class="metric">
+            <div class="metric-val" style="color:var(--danger)">162.6</div>
+            <div class="metric-lbl">Average WITH 500<br>(before cleaning)</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" style="color:var(--success)">68.75</div>
+            <div class="metric-lbl">Average AFTER<br>cleaning</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" style="color:var(--yellow)">93.85</div>
+            <div class="metric-lbl">Damage caused<br>by 1 wrong entry</div>
+          </div>
+        </div>
+        <p style="color:var(--muted);font-size:0.88rem;margin-top:8px">One entry of 500 (instead of ~70) inflated the class average by 93 marks. This proves why outliers must be handled before any analysis.</p>
+      </div>
+    </div>
+
+    <!-- CLEANED DATASET -->
+    <h3 style="margin-top:32px">The Cleaned Dataset ✅</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Reg No</th><th>Name</th><th>Gender</th><th>Attendance %</th><th>Study Hrs</th><th>Marks</th><th>Payment</th></tr>
+        <tr><td>101</td><td>Aman</td><td class="clean">Male</td><td>85</td><td>3</td><td>78</td><td class="clean">UPI</td></tr>
+        <tr><td>102</td><td>Riya</td><td class="clean">Female</td><td>90</td><td>4</td><td class="clean">70 ← filled</td><td>Cash</td></tr>
+        <tr><td>103</td><td>Kabir</td><td class="clean">Male</td><td class="clean">100 ← capped</td><td>2</td><td>65</td><td class="clean">UPI</td></tr>
+        <tr><td>104</td><td>Ananya</td><td>Female</td><td>75</td><td class="clean">3 ← filled</td><td>82</td><td>Card</td></tr>
+        <tr><td>105</td><td>Rahul</td><td class="clean">Male</td><td>60</td><td>1</td><td class="clean">70 ← replaced</td><td>UPI</td></tr>
+        <tr><td>106</td><td>Sneha</td><td>Female</td><td>88</td><td>3</td><td>76</td><td class="clean">Cash</td></tr>
+        <tr><td>107</td><td>Arjun</td><td>Male</td><td>40</td><td>0</td><td>30</td><td>UPI</td></tr>
+        <tr><td>108</td><td>Kavya</td><td class="clean">Female</td><td>95</td><td>5</td><td>89</td><td>Cash</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════ NORMALIZATION ═══════ -->
+  <div class="panel" id="panel-normalize">
+    <div class="slide-heading">Part C — <span class="hl2">Normalization</span></div>
+
+    <div class="info-strip">
+      <div class="strip-label">Why Normalize?</div>
+      Marks go 0–100. Study hours go 0–5. These different scales make direct comparison unfair. Normalization brings everything to a <strong>0–1 scale</strong> so we compare apples to apples.
+    </div>
+
+    <h3>The Formula</h3>
+    <div class="formula-box">Normalized Value = (X − Min) / (Max − Min)</div>
+
+    <div class="two-col" style="margin-top:18px">
       <div>
-        <label>Enter marks value (between 30 and 89)</label>
-        <input type="number" id="norm-input" value="78" min="30" max="89" oninput="calcNorm()">
-      </div>
-      <div>
-        <label>Normalized result</label>
-        <div class="result-box" id="norm-result">—</div>
-      </div>
-    </div>
-    <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:0" id="norm-explain"></p>
-  </div>
-
-  <h3>Excel formula to type in the new column</h3>
-  <div class="formula-box">=(G2 - MIN($G$2:$G$9)) / (MAX($G$2:$G$9) - MIN($G$2:$G$9))</div>
-  <p>Type this in a new column called "Normalized Marks", then drag the formula down for all 8 rows.</p>
-
-  <h3>Normalized marks — full table</h3>
-  <table>
-    <tr><th>Name</th><th>Marks</th><th>Normalized (0 to 1)</th><th>Interpretation</th></tr>
-    <tr><td>Arjun</td><td>30</td><td><strong>0.000</strong></td><td>Lowest performer</td></tr>
-    <tr><td>Rahul</td><td>70</td><td>0.678</td><td></td></tr>
-    <tr><td>Riya</td><td>70</td><td>0.678</td><td></td></tr>
-    <tr><td>Kabir</td><td>65</td><td>0.593</td><td></td></tr>
-    <tr><td>Aman</td><td>78</td><td>0.814</td><td></td></tr>
-    <tr><td>Sneha</td><td>76</td><td>0.780</td><td></td></tr>
-    <tr><td>Ananya</td><td>82</td><td>0.881</td><td></td></tr>
-    <tr><td>Kavya</td><td>89</td><td><strong>1.000</strong></td><td>Highest performer</td></tr>
-  </table>
-
-  <div class="card-success">
-    <strong style="color:#085041">Key insight</strong>
-    <p style="margin-top:0.3rem;margin-bottom:0;color:#3B6D11">Kavya has the highest normalized score (1.0). Arjun has the lowest (0.0). Now these numbers can be compared with attendance or study hours on the same scale.</p>
-  </div>
-</div>
-
-<!-- STORYTELLING TAB -->
-<div class="tab-panel" id="tab-story">
-  <h2>Data storytelling — what's the data telling us?</h2>
-  <p>After cleaning and analysis, you must write a short narrative. Examiners want to see that you can interpret data, not just calculate.</p>
-
-  <h3>Step 1 — Create a summary (use these Excel functions)</h3>
-  <table>
-    <tr><th>What you need</th><th>Excel function</th><th>Result</th></tr>
-    <tr><td>Average marks (after cleaning)</td><td class="formula-box" style="margin:0">=AVERAGE(G2:G9)</td><td>~70</td></tr>
-    <tr><td>Number of students</td><td class="formula-box" style="margin:0">=COUNT(G2:G9)</td><td>8</td></tr>
-    <tr><td>Students who passed (≥40)</td><td class="formula-box" style="margin:0">=COUNTIF(G2:G9,">=40")</td><td>7</td></tr>
-    <tr><td>Students who failed (&lt;40)</td><td class="formula-box" style="margin:0">=COUNTIF(G2:G9,"<40")</td><td>1</td></tr>
-  </table>
-
-  <h3>Step 2 — Create these 3 charts in Excel</h3>
-  <div class="step-row">
-    <div class="step-num">1</div>
-    <div class="step-content">
-      <strong>Bar chart — marks per student</strong>
-      <p>Select Name column + Marks column → Insert → Bar Chart. This shows who performed best and worst at a glance.</p>
-    </div>
-  </div>
-  <div class="step-row">
-    <div class="step-num">2</div>
-    <div class="step-content">
-      <strong>Pie chart — gender distribution</strong>
-      <p>Count: Male = 4, Female = 4 → Insert → Pie Chart. Shows the class is balanced by gender.</p>
-    </div>
-  </div>
-  <div class="step-row">
-    <div class="step-num">3</div>
-    <div class="step-content">
-      <strong>Line chart — attendance vs marks</strong>
-      <p>Select Attendance % + Marks → Insert → Line Chart. You can see if higher attendance links to better marks.</p>
-    </div>
-  </div>
-
-  <h3>Step 3 — Write your insights (exam answer template)</h3>
-
-  <div class="interactive-area">
-    <strong style="font-size:14px">Your 3 insights (copy and adapt for your record)</strong>
-    <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.75rem">
-      <div class="card-success" style="margin-bottom:0">
-        <strong style="color:#085041">Insight 1</strong>
-        <p style="margin-bottom:0;color:#3B6D11">Students with higher study hours tend to score better marks. For example, Kavya (5 hrs) scored 89, while Arjun (0 hrs) scored only 30.</p>
-      </div>
-      <div class="card-success" style="margin-bottom:0">
-        <strong style="color:#085041">Insight 2</strong>
-        <p style="margin-bottom:0;color:#3B6D11">Attendance below 50% is strongly linked to poor performance. Arjun (40% attendance) failed with 30 marks.</p>
-      </div>
-      <div class="card-success" style="margin-bottom:0">
-        <strong style="color:#085041">Insight 3</strong>
-        <p style="margin-bottom:0;color:#3B6D11">The outlier (Marks = 500 for Rahul) inflated the class average by ~94 marks before cleaning, proving that uncleaned data leads to completely wrong conclusions.</p>
-      </div>
-    </div>
-  </div>
-
-  <h3>Step 4 — Your 2 decisions (based on insights)</h3>
-  <div class="card">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-      <div>
-        <strong>Decision 1</strong>
-        <p>Arrange extra coaching classes for students with attendance below 60% (Arjun, Rahul) before the next exam.</p>
+        <div class="card accent2">
+          <div class="card-title">What each part means</div>
+          <div class="card-body">
+            <strong style="color:#fff">X</strong> = the value you want to normalize<br><br>
+            <strong style="color:#fff">Min</strong> = lowest value in the column<br><br>
+            <strong style="color:#fff">Max</strong> = highest value in the column<br><br>
+            Result is always between <strong style="color:var(--accent2)">0</strong> (lowest) and <strong style="color:var(--success)">1</strong> (highest)
+          </div>
+        </div>
+        <div class="info-strip">
+          <div class="strip-label">Our values</div>
+          Min Marks = <strong>30</strong> (Arjun) &nbsp;|&nbsp; Max Marks = <strong>89</strong> (Kavya)<br>
+          <span style="color:var(--muted)">So Max − Min = 89 − 30 = 59</span>
+        </div>
       </div>
       <div>
-        <strong>Decision 2</strong>
-        <p>Always validate and clean data before analysis — one wrong entry (500) changed the entire class average.</p>
+        <div class="interactive-box blue">
+          <div class="interactive-label">🧮 LIVE CALCULATOR</div>
+          <div style="margin-top:14px">
+            <label>Enter any marks value (30 to 89)</label>
+            <input type="number" id="norm-input" value="78" min="30" max="89" oninput="calcNorm()">
+            <div id="norm-result" class="result-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Excel Formula to Type</h3>
+    <div class="formula-box" style="font-size:0.9rem">=(G2 - MIN($G$2:$G$9)) / (MAX($G$2:$G$9) - MIN($G$2:$G$9))</div>
+    <p style="color:var(--muted);margin-bottom:20px">Type this in a new column "Normalized Marks" (column H). The $ signs lock the range so the formula works when you drag it down.</p>
+
+    <h3>Complete Normalized Marks Table</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Name</th><th>Marks</th><th>Calculation</th><th>Normalized Score</th><th>Rank</th></tr>
+        <tr><td>Arjun</td><td>30</td><td>(30−30)÷59 = 0÷59</td><td><span class="pill pill-danger">0.000</span></td><td>8th — lowest</td></tr>
+        <tr><td>Kabir</td><td>65</td><td>(65−30)÷59 = 35÷59</td><td>0.593</td><td>6th</td></tr>
+        <tr><td>Riya</td><td>70</td><td>(70−30)÷59 = 40÷59</td><td>0.678</td><td>5th</td></tr>
+        <tr><td>Rahul</td><td>70</td><td>(70−30)÷59 = 40÷59</td><td>0.678</td><td>5th</td></tr>
+        <tr><td>Sneha</td><td>76</td><td>(76−30)÷59 = 46÷59</td><td>0.780</td><td>4th</td></tr>
+        <tr><td>Aman</td><td>78</td><td>(78−30)÷59 = 48÷59</td><td>0.814</td><td>3rd</td></tr>
+        <tr><td>Ananya</td><td>82</td><td>(82−30)÷59 = 52÷59</td><td>0.881</td><td>2nd</td></tr>
+        <tr><td>Kavya</td><td>89</td><td>(89−30)÷59 = 59÷59</td><td><span class="pill pill-success">1.000</span></td><td>1st — highest</td></tr>
+      </table>
+    </div>
+
+    <div class="success-strip" style="margin-top:20px">
+      <div class="strip-label">Key Insight</div>
+      Kavya has normalized score = 1.0 (best). Arjun has 0.0 (lowest). Now we can compare these normalized marks fairly against normalized attendance or study hours on the same 0–1 scale.
+    </div>
+  </div>
+
+  <!-- ═══════ ANALYSIS ═══════ -->
+  <div class="panel" id="panel-analysis">
+    <div class="slide-heading">Part D — <span class="hl">Excel Analysis</span></div>
+
+    <h3>Step 1 — Summary Statistics Using Excel Functions</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>What to find</th><th>Excel Formula</th><th>Where to type it</th><th>Expected Result</th></tr>
+        <tr><td>Average marks (after cleaning)</td><td><code style="color:var(--accent2);">=AVERAGE(G2:G9)</code></td><td>Any empty cell</td><td>~70</td></tr>
+        <tr><td>Total number of students</td><td><code style="color:var(--accent2);">=COUNT(G2:G9)</code></td><td>Any empty cell</td><td>8</td></tr>
+        <tr><td>Students who passed (≥40)</td><td><code style="color:var(--accent2);">=COUNTIF(G2:G9,">=40")</code></td><td>Any empty cell</td><td>7</td></tr>
+        <tr><td>Students who failed (&lt;40)</td><td><code style="color:var(--accent2);">=COUNTIF(G2:G9,"<40")</code></td><td>Any empty cell</td><td>1</td></tr>
+        <tr><td>Highest marks</td><td><code style="color:var(--accent2);">=MAX(G2:G9)</code></td><td>Any empty cell</td><td>89</td></tr>
+        <tr><td>Lowest marks</td><td><code style="color:var(--accent2);">=MIN(G2:G9)</code></td><td>Any empty cell</td><td>30</td></tr>
+      </table>
+    </div>
+
+    <h3 style="margin-top:28px">Step 2 — Create These 3 Charts</h3>
+
+    <ul class="step-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong style="color:#fff">Bar Chart — Marks per Student</strong><br>
+          Select the Name column (A2:A9) → hold Ctrl → select Marks column (G2:G9) → Insert tab → Bar Chart. This shows who performed best and worst at a glance.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong style="color:#fff">Pie Chart — Gender Distribution</strong><br>
+          Manually count: Male = 4, Female = 4. Type these in two cells, label them. Select those 4 cells → Insert → Pie Chart. This shows the class is gender-balanced.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong style="color:#fff">Line/Scatter Chart — Attendance vs Marks</strong><br>
+          Select Attendance % column (D2:D9) → hold Ctrl → select Marks (G2:G9) → Insert → Scatter Chart. This visually reveals: does higher attendance = higher marks?
+        </div>
+      </li>
+    </ul>
+
+    <h3 style="margin-top:28px">Section 3 Questions — Answered</h3>
+    <div class="card">
+      <div class="table-wrap" style="margin:0">
+        <table style="margin:0">
+          <tr><th>Question</th><th>Answer</th></tr>
+          <tr><td>Average marks BEFORE cleaning?</td><td><span style="color:var(--danger)">~162.6</span> (because 500 is included)</td></tr>
+          <tr><td>Average marks AFTER cleaning?</td><td><span style="color:var(--success)">~68.75</span> (correct value)</td></tr>
+          <tr><td>How did outlier affect results?</td><td>Inflated the average by ~94 marks, giving a completely false picture</td></tr>
+          <tr><td>Which student has highest normalized score?</td><td><strong style="color:var(--accent2)">Kavya</strong> — normalized score = 1.000</td></tr>
+        </table>
       </div>
     </div>
   </div>
-</div>
 
-<!-- VIVA TAB -->
-<div class="tab-panel" id="tab-viva">
-  <h2>Viva preparation — 7 questions with model answers</h2>
-  <p>Click "Show answer" to reveal each answer. Try to answer first before looking!</p>
+  <!-- ═══════ STORYTELLING ═══════ -->
+  <div class="panel" id="panel-story">
+    <div class="slide-heading">Part E — <span class="hl2">Data Storytelling</span></div>
 
-  <div class="card" style="margin-bottom:0.75rem">
-    <strong>Q1. What is dirty data?</strong>
-    <button class="answer-toggle" onclick="tog('v1')" style="margin-left:8px">Show answer</button>
-    <div class="answer-box" id="v1">Dirty data is data that contains errors, missing values, duplicate entries, or inconsistent formats — making it unreliable for analysis.</div>
-  </div>
-  <div class="card" style="margin-bottom:0.75rem">
-    <strong>Q2. Why is data cleaning important?</strong>
-    <button class="answer-toggle" onclick="tog('v2')" style="margin-left:8px">Show answer</button>
-    <div class="answer-box" id="v2">Because inaccurate data leads to wrong conclusions. Cleaning improves data quality and makes analysis trustworthy and meaningful.</div>
-  </div>
-  <div class="card" style="margin-bottom:0.75rem">
-    <strong>Q3. What is normalization?</strong>
-    <button class="answer-toggle" onclick="tog('v3')" style="margin-left:8px">Show answer</button>
-    <div class="answer-box" id="v3">Normalization scales data to a 0–1 range using the formula: (X − Min) / (Max − Min). It allows fair comparison between values that are on different scales.</div>
-  </div>
-  <div class="card" style="margin-bottom:0.75rem">
-    <strong>Q4. What is the difference between mean and median?</strong>
-    <button class="answer-toggle" onclick="tog('v4')" style="margin-left:8px">Show answer</button>
-    <div class="answer-box" id="v4">Mean is the average (sum ÷ count) — it is affected by outliers. Median is the middle value when sorted — it is not affected by outliers. That's why we use median for study hours when outliers may exist.</div>
-  </div>
-  <div class="card" style="margin-bottom:0.75rem">
-    <strong>Q5. Why are outliers dangerous?</strong>
-    <button class="answer-toggle" onclick="tog('v5')" style="margin-left:8px">Show answer</button>
-    <div class="answer-box" id="v5">Outliers are extreme values that distort statistical results. In our dataset, Marks = 500 inflated the average from ~69 to ~163 — giving a completely false picture of class performance.</div>
-  </div>
-  <div class="card" style="margin-bottom:0.75rem">
-    <strong>Q6. What is data storytelling?</strong>
-    <button class="answer-toggle" onclick="tog('v6')" style="margin-left:8px">Show answer</button>
-    <div class="answer-box" id="v6">Data storytelling is the process of converting raw data and analysis results into clear, meaningful insights and actionable decisions — using charts, summaries, and plain language that non-technical people can understand.</div>
-  </div>
-  <div class="card" style="margin-bottom:0.75rem">
-    <strong>Q7. Why should data be standardized?</strong>
-    <button class="answer-toggle" onclick="tog('v7')" style="margin-left:8px">Show answer</button>
-    <div class="answer-box" id="v7">Inconsistent formats (like Male/male/M) make grouping and counting impossible. Standardization ensures data can be correctly filtered, sorted, and analyzed in tools like Excel or Python.</div>
+    <div class="info-strip">
+      <div class="strip-label">What is Data Storytelling?</div>
+      Converting raw numbers and charts into <strong>clear insights</strong> and <strong>real decisions</strong>. This is the most important skill — turning data into something a non-technical person can understand and act on.
+    </div>
+
+    <h3>Your 3 Key Insights (Write These in Your Record)</h3>
+
+    <ul class="step-list">
+      <li>
+        <div class="step-num" style="background:linear-gradient(135deg,var(--success),var(--accent2))">1</div>
+        <div class="step-text">
+          <strong style="color:var(--success)">Study hours and marks are positively linked.</strong><br>
+          Kavya (5 study hours) scored 89. Arjun (0 hours) scored only 30. Students who study more consistently score better. This suggests study time is a strong predictor of performance.
+        </div>
+      </li>
+      <li>
+        <div class="step-num" style="background:linear-gradient(135deg,var(--success),var(--accent2))">2</div>
+        <div class="step-text">
+          <strong style="color:var(--success)">Attendance below 50% is linked to poor marks.</strong><br>
+          Arjun (40% attendance) was the only student who failed (30 marks). Rahul (60%) also scored below average. Students with low attendance need extra support before exams.
+        </div>
+      </li>
+      <li>
+        <div class="step-num" style="background:linear-gradient(135deg,var(--success),var(--accent2))">3</div>
+        <div class="step-text">
+          <strong style="color:var(--success)">Dirty data caused a 94-mark error in the class average.</strong><br>
+          Before cleaning, average = 162.6 (impossible — out of 100). After cleaning, average = 68.75. This proves that unvalidated data can completely mislead decision-makers.
+        </div>
+      </li>
+    </ul>
+
+    <h3 style="margin-top:28px">Your 2 Problems Identified</h3>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Problem 1 — Data Inconsistency</div>
+        <div class="card-body">Gender and Payment columns used multiple formats for the same values (M, Male, F, Female, upi, UPI). This would break any grouping or counting analysis and produce incorrect reports.</div>
+      </div>
+      <div class="card accent2">
+        <div class="card-title">Problem 2 — Outlier Distortion</div>
+        <div class="card-body">Rahul's marks entry of 500 is a data entry error that inflated the entire class average by ~94 marks. No analyst would trust results from this uncleaned dataset.</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:28px">Your 2 Decisions / Recommendations</h3>
+    <div class="two-col">
+      <div class="success-strip">
+        <div class="strip-label">Decision 1</div>
+        <strong style="color:#fff">Arrange extra coaching for low-attendance students.</strong><br>
+        <span style="font-size:0.88rem;color:var(--muted)">Students with attendance below 60% (Arjun, Rahul) should receive mandatory extra classes before the next exam, based on the clear link between attendance and marks.</span>
+      </div>
+      <div class="success-strip">
+        <div class="strip-label">Decision 2</div>
+        <strong style="color:#fff">Implement data validation in the entry form.</strong><br>
+        <span style="font-size:0.88rem;color:var(--muted)">Marks column should only accept values 0–100. Gender should use a dropdown list. This prevents dirty data from entering the system in the first place.</span>
+      </div>
+    </div>
+
+    <h3 style="margin-top:28px">Why Is Normalization Important Here?</h3>
+    <div class="card accent2" style="margin-top:0">
+      <div class="card-body" style="font-size:0.95rem;line-height:1.7">
+        Marks (0–100), Study Hours (0–5), and Attendance % (0–100) are all on different scales. If we tried to compare them directly, a 1-hour difference in study time would look tiny compared to a 1-mark difference — even though 1 hour may be very significant.<br><br>
+        Normalization puts all three on a 0–1 scale, so we can fairly compare which factor has the most influence on a student's performance. It also prevents one large-scaled variable from dominating in any statistical model.
+      </div>
+    </div>
   </div>
 
-  <hr class="divider">
-  <h3>One-line definitions to memorize</h3>
-  <table>
-    <tr><th>Term</th><th>One-line definition</th></tr>
-    <tr><td>Data cleaning</td><td>Fixing errors, missing values, and inconsistencies in a dataset</td></tr>
-    <tr><td>Outlier</td><td>An extreme value that is very different from the rest of the data</td></tr>
-    <tr><td>Normalization</td><td>Scaling data to a 0–1 range for fair comparison</td></tr>
-    <tr><td>Data storytelling</td><td>Converting data analysis into clear insights and decisions</td></tr>
-    <tr><td>Mean</td><td>Sum of all values divided by the number of values</td></tr>
-    <tr><td>Median</td><td>Middle value when data is arranged in order</td></tr>
-  </table>
-</div>
+  <!-- ═══════ VIVA ═══════ -->
+  <div class="panel" id="panel-viva">
+    <div class="slide-heading">🧠 Viva <span class="hl">Preparation</span></div>
 
+    <p style="color:var(--muted);margin-bottom:24px">Click "Show Answer" only after you've tried answering each question yourself!</p>
+
+    <div class="viva-card">
+      <div class="viva-q">What is dirty data? <span class="q-num">Q1</span></div>
+      <button class="toggle-btn" onclick="toggleAnswer('v1')">▶ Show Answer</button>
+      <div class="answer-box" id="v1">Dirty data is data that contains <strong>errors, missing values, inconsistent formats, or outliers</strong> — making it unreliable for analysis. Example: Gender column having Male, male, M all in the same dataset.</div>
+    </div>
+
+    <div class="viva-card">
+      <div class="viva-q">Why is data cleaning important? <span class="q-num">Q2</span></div>
+      <button class="toggle-btn" onclick="toggleAnswer('v2')">▶ Show Answer</button>
+      <div class="answer-box" id="v2">Because inaccurate data leads to wrong conclusions and poor decisions. In our dataset, one wrong entry (500) changed the class average by 94 marks. <strong>Cleaning improves data quality</strong> and makes analysis trustworthy.</div>
+    </div>
+
+    <div class="viva-card">
+      <div class="viva-q">What is normalization? <span class="q-num">Q3</span></div>
+      <button class="toggle-btn" onclick="toggleAnswer('v3')">▶ Show Answer</button>
+      <div class="answer-box" id="v3">Normalization <strong>scales data to a 0–1 range</strong> using the formula: <code style="color:var(--accent2)">(X − Min) / (Max − Min)</code>. It allows fair comparison between values that are on different scales (like marks out of 100 vs study hours 0–5).</div>
+    </div>
+
+    <div class="viva-card">
+      <div class="viva-q">What is the difference between mean and median? <span class="q-num">Q4</span></div>
+      <button class="toggle-btn" onclick="toggleAnswer('v4')">▶ Show Answer</button>
+      <div class="answer-box" id="v4">
+        <strong>Mean</strong> = Sum ÷ Count. It is affected by extreme values (outliers).<br><br>
+        <strong>Median</strong> = Middle value when data is sorted. It is NOT affected by outliers.<br><br>
+        That is why we used median for Study Hours (in case of outliers) and mean for Marks (after removing the outlier).
+      </div>
+    </div>
+
+    <div class="viva-card">
+      <div class="viva-q">Why are outliers dangerous? <span class="q-num">Q5</span></div>
+      <button class="toggle-btn" onclick="toggleAnswer('v5')">▶ Show Answer</button>
+      <div class="answer-box" id="v5">Outliers are extreme values that <strong>distort statistical results</strong>. In our dataset, Marks = 500 inflated the average from ~69 to ~163 — giving a completely false picture. Outliers can ruin averages, charts, and predictions if not handled.</div>
+    </div>
+
+    <div class="viva-card">
+      <div class="viva-q">What is data storytelling? <span class="q-num">Q6</span></div>
+      <button class="toggle-btn" onclick="toggleAnswer('v6')">▶ Show Answer</button>
+      <div class="answer-box" id="v6">Data storytelling is the process of converting raw data and analysis results into <strong>clear, meaningful insights and actionable decisions</strong> — using charts, summaries, and plain language that non-technical people can understand and act upon.</div>
+    </div>
+
+    <div class="viva-card">
+      <div class="viva-q">Why should data be standardized? <span class="q-num">Q7</span></div>
+      <button class="toggle-btn" onclick="toggleAnswer('v7')">▶ Show Answer</button>
+      <div class="answer-box" id="v7">Inconsistent formats like Male/male/M make <strong>grouping, filtering, and counting impossible</strong>. Excel and any other tool treats them as different values. Standardization ensures data can be correctly sorted, filtered, and analyzed — preventing wrong results in reports.</div>
+    </div>
+
+    <!-- ONE LINE DEFS -->
+    <h3 style="margin-top:36px">One-Line Definitions — Memorize These</h3>
+    <div class="card" style="margin-top:0">
+      <div class="def-row">
+        <div class="def-term">Data Cleaning</div>
+        <div class="def-body">Fixing errors, missing values, and inconsistencies to make data reliable.</div>
+      </div>
+      <div class="def-row">
+        <div class="def-term">Outlier</div>
+        <div class="def-body">An extreme value far from the rest of the data that distorts analysis.</div>
+      </div>
+      <div class="def-row">
+        <div class="def-term">Normalization</div>
+        <div class="def-body">Scaling all values to a 0–1 range using (X−Min)/(Max−Min).</div>
+      </div>
+      <div class="def-row">
+        <div class="def-term">Data Storytelling</div>
+        <div class="def-body">Converting data analysis into clear insights and decisions for people to act on.</div>
+      </div>
+      <div class="def-row">
+        <div class="def-term">Mean</div>
+        <div class="def-body">Sum of all values divided by the number of values. Affected by outliers.</div>
+      </div>
+      <div class="def-row">
+        <div class="def-term">Median</div>
+        <div class="def-body">Middle value when data is arranged in order. Not affected by outliers.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panels -->
+
+<!-- FOOTER -->
+<div style="background:var(--panel);border-top:1px solid var(--border);padding:24px 60px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+  <div style="font-size:0.85rem;color:var(--muted)">K.P. Singh · Introduction to Data Science · BCA Semester I</div>
+  <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted)">Practical 7 · Data Cleaning, Normalization & Storytelling</div>
+  <a href="https://kpsingh.in" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--accent2);text-decoration:none">← Back to Main Site</a>
 </div>
 
 <script>
-function switchTab(id){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  event.target.classList.add('active');
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-function tog(id){
-  const el=document.getElementById(id);
-  el.style.display=el.style.display==='block'?'none':'block';
+
+function toggleAnswer(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.style.display === 'block';
+  el.style.display = isOpen ? 'none' : 'block';
+  const btn = el.previousElementSibling;
+  btn.textContent = isOpen ? '▶ Show Answer' : '▼ Hide Answer';
 }
-function calcNorm(){
-  const x=parseFloat(document.getElementById('norm-input').value);
-  const mn=30,mx=89;
-  if(isNaN(x)||x<mn||x>mx){
-    document.getElementById('norm-result').textContent='Enter a value between 30 and 89';
-    document.getElementById('norm-explain').textContent='';
+
+function calcNorm() {
+  const x = parseFloat(document.getElementById('norm-input').value);
+  const mn = 30, mx = 89;
+  const el = document.getElementById('norm-result');
+  if (isNaN(x) || x < mn || x > mx) {
+    el.innerHTML = '<span style="color:var(--danger)">Please enter a value between 30 and 89</span>';
     return;
   }
-  const norm=((x-mn)/(mx-mn)).toFixed(3);
-  document.getElementById('norm-result').textContent=norm;
-  document.getElementById('norm-explain').textContent=
-    `(${x} − ${mn}) ÷ (${mx} − ${mn}) = ${x-mn} ÷ ${mx-mn} = ${norm}`;
+  const norm = ((x - mn) / (mx - mn)).toFixed(3);
+  el.innerHTML = `
+    <div style="color:var(--muted);font-size:0.8rem;margin-bottom:6px">Calculation:</div>
+    (${x} − ${mn}) ÷ (${mx} − ${mn}) = ${x - mn} ÷ ${mx - mn}<br>
+    <span style="color:var(--success);font-size:1.3rem;font-weight:700">${norm}</span>
+    <span style="color:var(--muted);font-size:0.85rem;margin-left:8px">${norm == 1.000 ? '← highest!' : norm == 0.000 ? '← lowest!' : ''}</span>
+  `;
 }
+
 calcNorm();
 </script>
+</body>
+</html>
