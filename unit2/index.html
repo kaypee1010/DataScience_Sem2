@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Unit 2 – Data Cleaning & Transformation | K.P. Singh</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0f1c; --bg2:#111827; --panel:#161e30; --border:#1f2d44;
+  --teal:#14b8a6; --teal2:#2dd4bf;
+  --blue:#3b82f6; --blue2:#60a5fa;
+  --green:#10b981; --green2:#34d399;
+  --orange:#f59e0b; --orange2:#fbbf24;
+  --red:#f43f5e; --red2:#fb7185;
+  --purple:#a78bfa; --pink:#ec4899;
+  --text:#e2e8f0; --muted:#64748b; --soft:#94a3b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.7;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+/* NAV */
+.top-nav{position:sticky;top:0;z-index:100;background:rgba(11,15,28,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;}
+.top-nav .brand{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);}
+.top-nav .unit-badge{background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-size:.65rem;padding:4px 10px;border-radius:20px;font-weight:700;}
+.read-bar{position:fixed;top:52px;left:0;height:3px;background:linear-gradient(to right,var(--teal),var(--blue));width:0%;z-index:99;transition:width .1s;}
+
+/* HERO */
+.hero{min-height:82vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 40px;background:radial-gradient(ellipse at 50% 30%,#0e2235 0%,var(--bg) 65%);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%231f2d44' fill-opacity='0.35'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E") repeat;opacity:.3;pointer-events:none;}
+.hero-kicker{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--teal2);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px;}
+.hero-title{font-size:clamp(1.9rem,7.5vw,3.4rem);font-weight:900;line-height:1.1;margin-bottom:16px;}
+.hero-title .grad{background:linear-gradient(135deg,var(--teal),var(--blue2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-sub{font-size:1rem;color:var(--soft);max-width:520px;margin:0 auto 24px;}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:32px;}
+.hero-tag{background:rgba(20,184,166,.12);border:1px solid rgba(20,184,166,.25);border-radius:20px;padding:6px 16px;font-size:.85rem;color:var(--teal);}
+.hero-author{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px 20px;}
+.author-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem;color:#fff;}
+.author-info .name{font-weight:800;font-size:.95rem;}
+.author-info .role{font-size:.78rem;color:var(--muted);}
+
+/* TOC */
+.toc-section{padding:0 16px;max-width:680px;margin:0 auto;}
+.toc-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin:0 0 40px;}
+.toc-title{font-weight:800;font-size:1rem;color:#fff;margin-bottom:14px;}
+.toc-list{display:flex;flex-direction:column;gap:8px;}
+.toc-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;cursor:pointer;text-decoration:none;color:var(--text);transition:.15s;}
+.toc-item:hover{background:rgba(20,184,166,.1);border-color:var(--teal);}
+.toc-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+.toc-text{font-size:.92rem;font-weight:600;}
+
+/* SECTION */
+.section-wrap{max-width:680px;margin:0 auto;padding:0 16px 60px;}
+.sec-header{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(20,184,166,.1),rgba(59,130,246,.06));border:1px solid rgba(20,184,166,.25);border-radius:14px;padding:18px 20px;margin-bottom:24px;}
+.sec-icon{font-size:2rem;}
+.sec-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;}
+.sec-title{font-size:1.3rem;font-weight:900;color:#fff;}
+.sec-divider{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent);margin:10px 0 28px;}
+
+/* TEXT */
+.prose{font-size:.97rem;color:var(--soft);line-height:1.75;margin-bottom:16px;}
+.prose strong{color:var(--text);font-weight:700;}
+
+/* BOXES */
+.def-box{background:rgba(20,184,166,.08);border-left:3px solid var(--teal);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;}
+.def-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;font-weight:700;}
+.def-text{font-size:.93rem;color:var(--text);line-height:1.65;}
+.ex-box{background:rgba(59,130,246,.07);border-left:3px solid var(--blue2);border-radius:0 12px 12px 0;padding:12px 16px;margin:12px 0;}
+.ex-label{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--blue2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;font-weight:700;}
+.ex-text{font-size:.9rem;color:var(--text);line-height:1.65;}
+.warn-box{background:rgba(245,158,11,.07);border-left:3px solid var(--orange);border-radius:0 12px 12px 0;padding:12px 16px;margin:12px 0;}
+.warn-label{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--orange);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;font-weight:700;}
+
+/* CALLOUT */
+.callout{display:flex;gap:12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:12px 16px;margin:14px 0;}
+.callout-icon{font-size:1.2rem;flex-shrink:0;margin-top:2px;}
+.callout-text{font-size:.9rem;color:var(--text);line-height:1.6;}
+.callout.info{background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.2);}
+.callout.success{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.2);}
+.callout.teal{background:rgba(20,184,166,.07);border-color:rgba(20,184,166,.2);}
+
+/* CARD */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin:12px 0;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--teal),var(--blue));}
+.card.green::before{background:linear-gradient(to right,var(--green),var(--teal));}
+.card.orange::before{background:linear-gradient(to right,var(--orange),var(--pink));}
+.card.purple::before{background:linear-gradient(to right,var(--purple),var(--pink));}
+.card.red::before{background:linear-gradient(to right,var(--red),var(--orange));}
+.card.blue::before{background:linear-gradient(to right,var(--blue),var(--purple));}
+.card-icon{font-size:1.5rem;margin-bottom:7px;}
+.card-title{font-weight:800;font-size:.97rem;color:#fff;margin-bottom:5px;}
+.card-body{font-size:.88rem;color:var(--soft);line-height:1.65;}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+@media(max-width:480px){.grid-2{grid-template-columns:1fr;} .grid-3{grid-template-columns:1fr 1fr;}}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;margin:14px 0;border-radius:12px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;min-width:260px;}
+th{background:var(--border);color:var(--teal2);font-family:'Space Mono',monospace;font-size:.7rem;padding:9px 12px;text-align:left;letter-spacing:.05em;}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:.86rem;line-height:1.5;}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+td.missing{color:var(--red);font-weight:700;background:rgba(244,63,94,.08)!important;}
+td.fixed{color:var(--green);font-weight:700;background:rgba(16,185,129,.08)!important;}
+td.outlier{color:var(--orange);font-weight:700;background:rgba(245,158,11,.08)!important;}
+
+/* FORMULA */
+.formula{background:linear-gradient(135deg,#071a2c,#09131f);border:1px solid var(--teal);border-radius:12px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:.95rem;color:var(--teal2);text-align:center;margin:14px 0;}
+.formula small{display:block;font-size:.72rem;color:var(--muted);font-family:'Nunito',sans-serif;margin-top:6px;}
+
+/* INTERACTIVE */
+.inter-box{background:var(--panel);border:1px solid var(--teal);border-radius:16px;padding:18px;margin:18px 0;position:relative;}
+.inter-label{position:absolute;top:-12px;left:18px;background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-size:.63rem;padding:3px 12px;border-radius:20px;font-weight:700;letter-spacing:.06em;}
+.inter-box.blue-b{border-color:var(--blue);}
+.inter-box.blue-b .inter-label{background:var(--blue);}
+.inter-box.orange-b{border-color:var(--orange);}
+.inter-box.orange-b .inter-label{background:var(--orange);}
+.inter-box.purple-b{border-color:var(--purple);}
+.inter-box.purple-b .inter-label{background:var(--purple);}
+.inter-box.green-b{border-color:var(--green);}
+.inter-box.green-b .inter-label{background:var(--green);}
+
+/* INPUTS */
+.num-input-row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;}
+.num-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:110px;}
+.num-field label{font-size:.74rem;color:var(--muted);font-family:'Space Mono',monospace;}
+.num-field input,.num-field select,.num-field textarea{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:.9rem;font-family:'Nunito',sans-serif;outline:none;transition:border-color .15s;width:100%;}
+.num-field input:focus,.num-field select:focus,.num-field textarea:focus{border-color:var(--teal);}
+.num-field textarea{resize:vertical;min-height:60px;}
+.calc-btn{background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;border:none;border-radius:8px;padding:11px 20px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;width:100%;margin-top:6px;transition:opacity .15s;}
+.calc-btn:hover{opacity:.9;}
+.calc-btn.orange-btn{background:linear-gradient(135deg,var(--orange),var(--pink));}
+.calc-btn.purple-btn{background:linear-gradient(135deg,var(--purple),var(--pink));}
+.calc-btn.green-btn{background:linear-gradient(135deg,var(--green),var(--teal));}
+.calc-result{min-height:44px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:.9rem;margin-top:10px;}
+
+/* QUIZ */
+.quiz-wrap{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;margin:18px 0;}
+.quiz-label{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--orange2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;font-weight:700;}
+.quiz-q{font-weight:800;font-size:.96rem;color:#fff;margin-bottom:12px;line-height:1.55;}
+.quiz-options{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{width:100%;text-align:left;padding:11px 15px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem;font-family:'Nunito',sans-serif;cursor:pointer;transition:.15s;}
+.quiz-opt:hover:not(:disabled){background:rgba(20,184,166,.1);border-color:var(--teal);}
+.quiz-opt.correct{background:rgba(16,185,129,.15)!important;border-color:var(--green)!important;color:var(--green)!important;}
+.quiz-opt.wrong{background:rgba(244,63,94,.15)!important;border-color:var(--red)!important;color:var(--red)!important;}
+.quiz-feedback{margin-top:10px;padding:11px 15px;border-radius:10px;font-size:.87rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.ok{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--green);}
+.quiz-feedback.bad{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);color:#fca5a5;}
+.quiz-retry{margin-top:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 16px;color:var(--muted);font-family:'Nunito',sans-serif;font-size:.84rem;cursor:pointer;}
+
+/* STEP LIST */
+.step-flow{display:flex;flex-direction:column;gap:0;margin:14px 0;}
+.sf-item{display:flex;gap:12px;padding-bottom:16px;position:relative;}
+.sf-item:not(:last-child) .sf-dot::after{content:'';position:absolute;left:12px;top:26px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--teal),transparent);}
+.sf-dot{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;position:relative;z-index:1;}
+.sf-body{flex:1;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:11px 14px;}
+.sf-title{font-weight:800;font-size:.93rem;color:#fff;margin-bottom:3px;}
+.sf-desc{font-size:.84rem;color:var(--soft);line-height:1.6;}
+
+/* BADGE */
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.77rem;font-weight:700;vertical-align:middle;margin:1px;}
+.b-t{background:rgba(20,184,166,.2);color:var(--teal2);}
+.b-g{background:rgba(16,185,129,.2);color:var(--green);}
+.b-o{background:rgba(245,158,11,.2);color:var(--orange);}
+.b-r{background:rgba(244,63,94,.2);color:var(--red2);}
+.b-b{background:rgba(59,130,246,.2);color:var(--blue2);}
+.b-p{background:rgba(167,139,250,.2);color:var(--purple);}
+
+/* EXPAND */
+.expand-btn{width:100%;text-align:left;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 15px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin:7px 0;}
+.expand-btn:hover{border-color:var(--teal);}
+.expand-content{display:none;padding:13px 15px;background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;font-size:.87rem;color:var(--soft);line-height:1.65;}
+.expand-content.open{display:block;}
+.expand-chevron{transition:transform .2s;}
+.expand-btn.open .expand-chevron{transform:rotate(180deg);}
+
+/* DATA TABLE VISUAL */
+.data-vis-table{border-radius:12px;overflow:hidden;margin:14px 0;border:1px solid var(--border);}
+.dvt-row{display:flex;border-bottom:1px solid var(--border);}
+.dvt-row:last-child{border-bottom:none;}
+.dvt-head{background:var(--border);}
+.dvt-cell{flex:1;padding:9px 12px;font-size:.84rem;border-right:1px solid var(--border);}
+.dvt-cell:last-child{border-right:none;}
+.dvt-head .dvt-cell{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--teal2);font-weight:700;letter-spacing:.05em;}
+.dvt-miss{background:rgba(244,63,94,.12);color:var(--red2);font-weight:700;}
+.dvt-out{background:rgba(245,158,11,.12);color:var(--orange);font-weight:700;}
+.dvt-inc{background:rgba(167,139,250,.12);color:var(--purple);font-weight:700;}
+.dvt-ok{}
+
+/* EXCEL FORMULA BOX */
+.excel-box{background:#0d1f12;border:1px solid rgba(16,185,129,.35);border-radius:12px;padding:14px 16px;margin:12px 0;font-family:'Space Mono',monospace;}
+.excel-bar{background:#1a2e1d;border-radius:6px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.excel-bar-label{font-size:.68rem;color:var(--muted);margin-right:4px;}
+.excel-formula{font-size:.9rem;color:var(--green2);}
+.excel-result{font-size:.84rem;color:var(--soft);}
+.excel-result strong{color:var(--green2);}
+
+/* ACTIVITY */
+.activity{background:linear-gradient(135deg,rgba(167,139,250,.07),rgba(236,72,153,.05));border:1px solid rgba(167,139,250,.2);border-radius:14px;padding:18px;margin:18px 0;}
+.activity-label{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--purple);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;font-weight:700;}
+.activity-title{font-weight:800;font-size:.97rem;color:#fff;margin-bottom:10px;}
+
+/* MATCH GAME */
+.match-game{display:flex;flex-direction:column;gap:10px;margin:10px 0;}
+.match-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.match-term{flex:1;min-width:130px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 13px;font-size:.88rem;font-weight:700;color:var(--text);}
+.match-arrow{color:var(--muted);font-size:1.1rem;flex-shrink:0;}
+.match-select{flex:1;min-width:130px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.88rem;outline:none;cursor:pointer;}
+.match-select:focus{border-color:var(--teal);}
+.match-check-btn{width:100%;margin-top:8px;padding:10px;border-radius:10px;background:var(--teal);border:none;color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
+.match-result{margin-top:8px;padding:10px 14px;border-radius:10px;font-size:.88rem;display:none;}
+.match-result.show{display:block;}
+.match-ok{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--green);}
+.match-bad{background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.3);color:#fca5a5;}
+
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:420px){.summary-grid{grid-template-columns:1fr;}}
+.sum-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+.sum-icon{font-size:1.7rem;margin-bottom:5px;}
+.sum-term{font-weight:800;font-size:.9rem;color:#fff;margin-bottom:3px;}
+.sum-def{font-size:.77rem;color:var(--muted);line-height:1.5;}
+
+/* MISC */
+.foot{text-align:center;padding:24px 20px;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem;}
+.foot .name{color:var(--teal2);font-weight:700;}
+.btt{position:fixed;bottom:20px;right:16px;width:42px;height:42px;border-radius:50%;background:var(--teal);border:none;color:#fff;font-size:1.1rem;cursor:pointer;z-index:90;opacity:0;transition:opacity .3s;display:flex;align-items:center;justify-content:center;}
+.btt.show{opacity:1;}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s;}
+.reveal.visible{opacity:1;transform:none;}
+code{background:var(--border);padding:2px 7px;border-radius:5px;font-family:'Space Mono',monospace;font-size:.82rem;color:var(--teal2);}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand">K.P. Singh · IDS</span>
+  <span class="unit-badge">UNIT 2</span>
+</nav>
+<div class="read-bar" id="readBar"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-kicker">Introduction to Data Science · BCA Sem I</div>
+  <h1 class="hero-title">Data Cleaning &<br><span class="grad">Transformation</span></h1>
+  <p class="hero-sub">Real data is messy — learn to clean it, transform it, integrate it, and tame it with Excel. Your Unit 2 interactive notes.</p>
+  <div class="hero-tags">
+    <span class="hero-tag">🧹 Data Cleaning</span>
+    <span class="hero-tag">⚖️ Normalization</span>
+    <span class="hero-tag">🔗 Data Integration</span>
+    <span class="hero-tag">📊 Excel</span>
+  </div>
+  <div class="hero-author">
+    <div class="author-avatar">KP</div>
+    <div class="author-info">
+      <div class="name">Prof. K.P. Singh</div>
+      <div class="role">Introduction to Data Science · Lecture-09 · Unit II</div>
+    </div>
+  </div>
+</section>
+
+<!-- TOC -->
+<div class="toc-section">
+  <div class="toc-card reveal">
+    <div class="toc-title">📋 Unit 2 — What you'll learn</div>
+    <div class="toc-list">
+      <a class="toc-item" href="#sec1"><div class="toc-num">1</div><span class="toc-text">Data Cleaning — Missing Values, Outliers & Inconsistencies</span></a>
+      <a class="toc-item" href="#sec2"><div class="toc-num">2</div><span class="toc-text">Data Transformation — Normalization, Standardization & Encoding</span></a>
+      <a class="toc-item" href="#sec3"><div class="toc-num">3</div><span class="toc-text">Data Integration — Combining Data from Multiple Sources</span></a>
+      <a class="toc-item" href="#sec4"><div class="toc-num">4</div><span class="toc-text">Excel for Data Handling — Basic Functions & Formulas</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SECTION 1: DATA CLEANING ══════════════ -->
+<section id="sec1" class="section-wrap">
+  <div class="sec-header reveal">
+    <div class="sec-icon">🧹</div>
+    <div class="sec-info">
+      <div class="sec-label">Section 1</div>
+      <div class="sec-title">Data Cleaning</div>
+    </div>
+  </div>
+
+  <div class="def-box reveal">
+    <div class="def-label">📖 What is Data Cleaning?</div>
+    <div class="def-text"><strong>Data Cleaning</strong> (also called Data Wrangling or Data Scrubbing) is the process of <strong>fixing or removing incorrect, incomplete, duplicate, or corrupted data</strong> from a dataset before analysis.</div>
+  </div>
+
+  <div class="callout teal reveal">
+    <span class="callout-icon">🍽️</span>
+    <span class="callout-text"><strong>Analogy:</strong> Imagine you bought vegetables from a market. Before cooking, you wash them, remove rotten ones, and cut them properly. Data cleaning is exactly this — preparing your raw data before "cooking" (analysis)!</span>
+  </div>
+
+  <p class="prose reveal">In real projects, data scientists spend <strong>60–80% of their time</strong> just cleaning data. If your data is dirty, even the best model will give wrong answers. This is called: <strong style="color:var(--red2);">"Garbage In, Garbage Out!"</strong></p>
+
+  <!-- Dirty data visual example -->
+  <h3 style="font-weight:900;font-size:1rem;color:#fff;margin:18px 0 10px;" class="reveal">👀 What does "dirty" data look like?</h3>
+  <div class="table-wrap reveal">
+    <table>
+      <tr><th>Student ID</th><th>Name</th><th>Age</th><th>Marks</th><th>Grade</th></tr>
+      <tr><td>101</td><td>Rahul Sharma</td><td>20</td><td>85</td><td>A</td></tr>
+      <tr><td>102</td><td>Priya</td><td class="missing">—</td><td>72</td><td>B</td></tr>
+      <tr><td>103</td><td>rahul sharma</td><td>21</td><td class="outlier">998</td><td>A</td></tr>
+      <tr><td>101</td><td>Rahul Sharma</td><td>20</td><td>85</td><td class="missing">—</td></tr>
+      <tr><td>105</td><td>Anjali</td><td>19</td><td>-5</td><td class="outlier">?</td></tr>
+      <tr><td>106</td><td>Rohan</td><td>twenty</td><td>78</td><td>B+</td></tr>
+    </table>
+  </div>
+  <div class="grid-3 reveal" style="margin-bottom:16px;">
+    <div style="background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25);border-radius:10px;padding:10px;font-size:.82rem;text-align:center;"><span style="color:var(--red2);font-weight:700;">🔴 Missing</span><br>Empty cells (Age, Grade)</div>
+    <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:10px;font-size:.82rem;text-align:center;"><span style="color:var(--orange);font-weight:700;">🟡 Outlier</span><br>998 marks, -5 marks</div>
+    <div style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);border-radius:10px;padding:10px;font-size:.82rem;text-align:center;"><span style="color:var(--purple);font-weight:700;">🟣 Inconsistent</span><br>Duplicate row 101, "twenty"</div>
+  </div>
+
+  <!-- ── MISSING VALUES ── -->
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1.05rem;color:#fff;margin-bottom:12px;" class="reveal">❓ 1.1 Handling Missing Values</h3>
+  <p class="prose reveal">Missing values appear as <code>NULL</code>, <code>NaN</code>, blank, or "—". They occur because of data entry errors, sensor failures, or unanswered survey questions.</p>
+
+  <div class="step-flow reveal">
+    <div class="sf-item">
+      <div class="sf-dot">🗑️</div>
+      <div class="sf-body">
+        <div class="sf-title">Method 1 — Delete the Row / Column</div>
+        <div class="sf-desc">Remove rows with missing values. Simple but risky — you lose data. Only use if very few rows are missing (&lt;5%).</div>
+        <div style="font-size:.8rem;color:var(--teal2);margin-top:4px;">✅ Use when: Very few missing values | ❌ Avoid when: Large portion of data is missing</div>
+      </div>
+    </div>
+    <div class="sf-item">
+      <div class="sf-dot">📊</div>
+      <div class="sf-body">
+        <div class="sf-title">Method 2 — Fill with Mean</div>
+        <div class="sf-desc">Replace missing value with the <strong>average</strong> of that column. Best for numerical data with no outliers.</div>
+        <div style="font-size:.8rem;color:var(--teal2);margin-top:4px;">📌 Example: Age missing → Fill with average age = (20+21+19)/3 = 20</div>
+      </div>
+    </div>
+    <div class="sf-item">
+      <div class="sf-dot">📍</div>
+      <div class="sf-body">
+        <div class="sf-title">Method 3 — Fill with Median</div>
+        <div class="sf-desc">Replace with the <strong>middle value</strong> when sorted. Best for data with outliers (outliers don't affect median).</div>
+        <div style="font-size:.8rem;color:var(--teal2);margin-top:4px;">📌 Example: Salary data has outliers → Use median salary instead of mean</div>
+      </div>
+    </div>
+    <div class="sf-item">
+      <div class="sf-dot">🔢</div>
+      <div class="sf-body">
+        <div class="sf-title">Method 4 — Fill with Mode</div>
+        <div class="sf-desc">Replace with the <strong>most frequent value</strong>. Best for categorical (text) data.</div>
+        <div style="font-size:.8rem;color:var(--teal2);margin-top:4px;">📌 Example: Grade column missing → Fill with most common grade "B"</div>
+      </div>
+    </div>
+    <div class="sf-item">
+      <div class="sf-dot">🔮</div>
+      <div class="sf-body">
+        <div class="sf-title">Method 5 — Forward/Backward Fill</div>
+        <div class="sf-desc">Use the previous or next value to fill the gap. Used in <strong>time series data</strong> (e.g., daily temperatures).</div>
+        <div style="font-size:.8rem;color:var(--teal2);margin-top:4px;">📌 Example: Monday temp=30°, Tuesday temp=?, Wednesday temp=32° → Fill Tuesday with 30° or 32°</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Missing Value Calculator -->
+  <div class="inter-box reveal" style="margin-top:6px;">
+    <div class="inter-label">🧮 MISSING VALUE CALCULATOR</div>
+    <p style="margin-top:14px;font-size:.88rem;color:var(--soft);">Enter a list of numbers (some missing as blank or 0). We'll calculate Mean, Median & Mode to help you decide which fill method to use.</p>
+    <div class="num-input-row">
+      <div class="num-field" style="flex:2;">
+        <label>Enter values — comma separated (use blank for missing, e.g. 45,67,,80,,72,90)</label>
+        <input type="text" id="mvInput" value="45,67,,80,,72,90,55,67" placeholder="e.g. 45,67,,80,,72">
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calcMissingStats()">Analyse & Suggest →</button>
+    <div class="calc-result" id="mvResult"><span style="color:var(--muted)">Enter data and click Analyse!</span></div>
+  </div>
+
+  <!-- ── OUTLIERS ── -->
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1.05rem;color:#fff;margin-bottom:12px;" class="reveal">📊 1.2 Handling Outliers</h3>
+
+  <div class="def-box reveal">
+    <div class="def-label">📖 What is an Outlier?</div>
+    <div class="def-text">An <strong>outlier</strong> is a data point that is <strong>very different from the rest</strong> — either much too high or much too low. It can distort your analysis badly.</div>
+  </div>
+
+  <div class="ex-box reveal">
+    <div class="ex-label">📌 Example</div>
+    <div class="ex-text">Marks of 5 students: <strong>55, 60, 58, 62, 998</strong><br>
+    Mean with outlier = (55+60+58+62+998)/5 = <span style="color:var(--red2);font-weight:700;">246.6</span> ← WRONG picture!<br>
+    Mean without outlier = (55+60+58+62)/4 = <span style="color:var(--green);font-weight:700;">58.75</span> ← Accurate!</div>
+  </div>
+
+  <h4 style="font-weight:800;font-size:.95rem;color:#fff;margin:16px 0 10px;" class="reveal">🔍 IQR Method — Most Common Outlier Detection</h4>
+  <div class="formula reveal">
+    IQR = Q3 − Q1<br>
+    Lower Bound = Q1 − 1.5 × IQR<br>
+    Upper Bound = Q3 + 1.5 × IQR<br>
+    <small>Any value outside these bounds = Outlier</small>
+  </div>
+
+  <div class="ex-box reveal">
+    <div class="ex-label">📌 Worked Example</div>
+    <div class="ex-text">
+      Data: 10, 12, 14, 15, 16, 17, 18, 90<br>
+      Q1 = 13, Q3 = 17.5, IQR = 4.5<br>
+      Lower = 13 − (1.5×4.5) = 13 − 6.75 = <strong>6.25</strong><br>
+      Upper = 17.5 + 6.75 = <strong>24.25</strong><br>
+      → 90 is outside [6.25, 24.25] → <span style="color:var(--red2);font-weight:700;">90 is an OUTLIER! ✓</span>
+    </div>
+  </div>
+
+  <!-- IQR Calculator -->
+  <div class="inter-box orange-b reveal">
+    <div class="inter-label" style="background:var(--orange);">📊 IQR OUTLIER DETECTOR</div>
+    <p style="margin-top:14px;font-size:.88rem;color:var(--soft);">Enter your dataset and we'll find outliers using the IQR method automatically.</p>
+    <div class="num-input-row">
+      <div class="num-field" style="flex:2;">
+        <label>Enter numbers — comma separated</label>
+        <input type="text" id="iqrInput" value="10,12,14,15,16,17,18,90,11,13" placeholder="e.g. 10,12,90,14,15">
+      </div>
+    </div>
+    <button class="calc-btn orange-btn" onclick="detectOutliers()">Detect Outliers →</button>
+    <div class="calc-result" id="iqrResult"><span style="color:var(--muted)">Enter data and click Detect!</span></div>
+  </div>
+
+  <h4 style="font-weight:800;font-size:.95rem;color:#fff;margin:16px 0 10px;" class="reveal">🛠️ How to Handle Outliers?</h4>
+  <div class="grid-2 reveal">
+    <div class="card green">
+      <div class="card-title">Remove them</div>
+      <div class="card-body">Delete the outlier row if it's clearly a data entry error (e.g., marks = 998).</div>
+    </div>
+    <div class="card orange">
+      <div class="card-title">Cap / Clip them</div>
+      <div class="card-body">Replace with the upper/lower bound value. E.g., cap all values above 24.25 to 24.25.</div>
+    </div>
+    <div class="card blue">
+      <div class="card-title">Keep them!</div>
+      <div class="card-body">If the outlier is real (e.g., Sachin's 100 centuries), keep it — it's meaningful data!</div>
+    </div>
+    <div class="card purple">
+      <div class="card-title">Transform the data</div>
+      <div class="card-body">Apply log transformation to reduce the effect of extreme values on the analysis.</div>
+    </div>
+  </div>
+
+  <!-- ── INCONSISTENCIES ── -->
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1.05rem;color:#fff;margin-bottom:12px;" class="reveal">⚠️ 1.3 Handling Inconsistencies</h3>
+  <p class="prose reveal">Inconsistencies are <strong>errors, contradictions, or formatting differences</strong> in data that make it unreliable.</p>
+
+  <div class="card reveal" style="margin-bottom:0;">
+    <div class="card-title">Common Types of Inconsistencies</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:.88rem;">
+        <span style="color:var(--red2);flex-shrink:0;font-weight:700;">❌ Before</span>
+        <span style="color:var(--green);flex-shrink:0;font-weight:700;">✅ After</span>
+        <span style="color:var(--muted);flex-shrink:0;">Issue</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:.86rem;">
+        <code style="flex:1;color:var(--red2);">rahul / Rahul / RAHUL</code>
+        <code style="flex:1;color:var(--green);">Rahul</code>
+        <span style="flex:1;color:var(--soft);">Case inconsistency</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:.86rem;">
+        <code style="flex:1;color:var(--red2);">01-01-2024 / 1/1/24</code>
+        <code style="flex:1;color:var(--green);">2024-01-01</code>
+        <span style="flex:1;color:var(--soft);">Date format</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:.86rem;">
+        <code style="flex:1;color:var(--red2);">Male / M / male</code>
+        <code style="flex:1;color:var(--green);">Male</code>
+        <span style="flex:1;color:var(--soft);">Categorical mismatch</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:.86rem;">
+        <code style="flex:1;color:var(--red2);">₹1,000 / 1000 / 1K</code>
+        <code style="flex:1;color:var(--green);">1000</code>
+        <span style="flex:1;color:var(--soft);">Unit inconsistency</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:.86rem;">
+        <code style="flex:1;color:var(--red2);">Row 101 duplicated</code>
+        <code style="flex:1;color:var(--green);">Keep one row</code>
+        <span style="flex:1;color:var(--soft);">Duplicate rows</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz 1 -->
+  <div class="quiz-wrap reveal" id="q1">
+    <div class="quiz-label">🎯 Quick Check</div>
+    <div class="quiz-q">A dataset has salary values: 25000, 28000, 30000, 27000, 9999999. What is the BEST method to handle 9999999?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkQuiz('q1',this,false)">A. Fill it with Mean salary</button>
+      <button class="quiz-opt" onclick="checkQuiz('q1',this,false)">B. Leave it as it is</button>
+      <button class="quiz-opt" onclick="checkQuiz('q1',this,true)">C. Remove or Cap it — it is an Outlier</button>
+      <button class="quiz-opt" onclick="checkQuiz('q1',this,false)">D. Fill it with Mode</button>
+    </div>
+    <div class="quiz-feedback" id="q1-fb"></div>
+    <button class="quiz-retry" onclick="resetQuiz('q1')" style="display:none;" id="q1-retry">↺ Try Again</button>
+  </div>
+
+</section>
+
+<!-- ══════════════ SECTION 2: DATA TRANSFORMATION ══════════════ -->
+<section id="sec2" class="section-wrap">
+  <div class="sec-header reveal">
+    <div class="sec-icon">⚙️</div>
+    <div class="sec-info">
+      <div class="sec-label">Section 2</div>
+      <div class="sec-title">Data Transformation</div>
+    </div>
+  </div>
+
+  <div class="def-box reveal">
+    <div class="def-label">📖 What is Data Transformation?</div>
+    <div class="def-text"><strong>Data Transformation</strong> converts data from one format or scale into another, making it <strong>suitable for machine learning models</strong> and statistical analysis.</div>
+  </div>
+
+  <div class="callout reveal">
+    <span class="callout-icon">🤔</span>
+    <span class="callout-text"><strong>Why transform?</strong> ML algorithms are sensitive to scale. If Age (20–25) and Salary (20,000–80,000) are in the same model without transformation, Salary will dominate just because its numbers are bigger — not because it's more important!</span>
+  </div>
+
+  <!-- ── NORMALIZATION ── -->
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1.05rem;color:#fff;margin-bottom:12px;" class="reveal">📏 2.1 Normalization (Min-Max Scaling)</h3>
+  <p class="prose reveal">Normalization <strong>scales all values to a range of 0 to 1</strong>. The smallest value becomes 0, the largest becomes 1, and all others fit in between.</p>
+
+  <div class="formula reveal">
+    X_norm = (X − X_min) / (X_max − X_min)
+    <small>Result is always between 0 and 1</small>
+  </div>
+
+  <div class="ex-box reveal">
+    <div class="ex-label">📌 Worked Example — Student Marks</div>
+    <div class="ex-text">
+      Marks: 40, 60, 80, 100<br>
+      X_min = 40, X_max = 100<br><br>
+      Normalise 40: (40−40)/(100−40) = 0/60 = <strong style="color:var(--teal2);">0.00</strong><br>
+      Normalise 60: (60−40)/(100−40) = 20/60 = <strong style="color:var(--teal2);">0.33</strong><br>
+      Normalise 80: (80−40)/60 = 40/60 = <strong style="color:var(--teal2);">0.67</strong><br>
+      Normalise 100: (100−40)/60 = 60/60 = <strong style="color:var(--teal2);">1.00</strong>
+    </div>
+  </div>
+
+  <!-- Normalization Calculator -->
+  <div class="inter-box reveal">
+    <div class="inter-label">📏 NORMALIZATION CALCULATOR</div>
+    <p style="margin-top:14px;font-size:.88rem;color:var(--soft);">Enter a dataset and a specific value — get its normalized score instantly.</p>
+    <div class="num-input-row">
+      <div class="num-field" style="flex:2;"><label>Dataset (comma separated)</label><input type="text" id="normData" value="40,60,80,100,55,75"></div>
+      <div class="num-field"><label>Value to normalize</label><input type="number" id="normX" value="60"></div>
+    </div>
+    <button class="calc-btn" onclick="calcNorm()">Normalize →</button>
+    <div class="calc-result" id="normResult"><span style="color:var(--muted)">Enter data and click Normalize!</span></div>
+  </div>
+
+  <!-- ── STANDARDIZATION ── -->
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1.05rem;color:#fff;margin-bottom:12px;" class="reveal">📐 2.2 Standardization (Z-Score)</h3>
+  <p class="prose reveal">Standardization converts values so that the data has <strong>mean = 0 and standard deviation = 1</strong>. Unlike normalization, the result is NOT bounded to 0–1. Values can be negative.</p>
+
+  <div class="formula reveal">
+    Z = (X − μ) / σ
+    <small>μ = Mean of data &nbsp;|&nbsp; σ = Standard Deviation &nbsp;|&nbsp; Z = Z-score</small>
+  </div>
+
+  <div class="callout info reveal">
+    <span class="callout-icon">🆚</span>
+    <span class="callout-text"><strong>Normalization vs Standardization — When to use which?</strong><br>
+    Use <strong>Normalization</strong> when you know data has a bounded range and no extreme outliers.<br>
+    Use <strong>Standardization</strong> when data has outliers or you don't know the range. It's more robust.</span>
+  </div>
+
+  <div class="ex-box reveal">
+    <div class="ex-label">📌 Worked Example</div>
+    <div class="ex-text">
+      Data: 2, 4, 6, 8, 10 &nbsp;|&nbsp; Mean (μ) = 6 &nbsp;|&nbsp; Std Dev (σ) = 2.83<br><br>
+      Z-score of 2: (2−6)/2.83 = <strong style="color:var(--teal2);">−1.41</strong> (below average)<br>
+      Z-score of 6: (6−6)/2.83 = <strong style="color:var(--teal2);">0.00</strong> (exactly average)<br>
+      Z-score of 10: (10−6)/2.83 = <strong style="color:var(--teal2);">+1.41</strong> (above average)
+    </div>
+  </div>
+
+  <!-- Z-Score Calculator -->
+  <div class="inter-box blue-b reveal">
+    <div class="inter-label" style="background:var(--blue);">📐 Z-SCORE CALCULATOR</div>
+    <p style="margin-top:14px;font-size:.88rem;color:var(--soft);">Enter your dataset and a value — get the Z-score with interpretation.</p>
+    <div class="num-input-row">
+      <div class="num-field" style="flex:2;"><label>Dataset (comma separated)</label><input type="text" id="zData" value="2,4,6,8,10"></div>
+      <div class="num-field"><label>Value (X)</label><input type="number" id="zX" value="8"></div>
+    </div>
+    <button class="calc-btn" style="background:linear-gradient(135deg,var(--blue),var(--purple));" onclick="calcZScore()">Calculate Z-Score →</button>
+    <div class="calc-result" id="zResult"><span style="color:var(--muted)">Enter data and click Calculate!</span></div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="table-wrap reveal">
+    <table>
+      <tr><th></th><th>Normalization</th><th>Standardization</th></tr>
+      <tr><td><strong>Formula</strong></td><td>(X−min)/(max−min)</td><td>(X−μ)/σ</td></tr>
+      <tr><td><strong>Range</strong></td><td>0 to 1</td><td>No fixed range (can be negative)</td></tr>
+      <tr><td><strong>Outlier sensitive?</strong></td><td><span class="badge b-r">Yes ⚠️</span></td><td><span class="badge b-g">No ✓</span></td></tr>
+      <tr><td><strong>Best for</strong></td><td>Image pixels, bounded data</td><td>Most ML algorithms</td></tr>
+      <tr><td><strong>Example use</strong></td><td>KNN, Neural Networks</td><td>SVM, Logistic Regression</td></tr>
+    </table>
+  </div>
+
+  <!-- ── ENCODING ── -->
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1.05rem;color:#fff;margin-bottom:12px;" class="reveal">🔤 2.3 Encoding Categorical Data</h3>
+  <p class="prose reveal">ML models work with <strong>numbers only</strong>. Text categories like "Male/Female" or "Good/Bad" must be converted to numbers. This is called <strong>Encoding</strong>.</p>
+
+  <div style="display:flex;flex-direction:column;gap:10px;" class="reveal">
+    <button class="expand-btn" onclick="toggleExpand(this)">
+      <span>🏷️ Label Encoding — Assign a number to each category</span><span class="expand-chevron">▼</span>
+    </button>
+    <div class="expand-content">
+      <strong>How it works:</strong> Each unique category gets a number: 0, 1, 2, 3...<br><br>
+      <div class="table-wrap" style="margin:10px 0;">
+        <table>
+          <tr><th>Original (Grade)</th><th>After Label Encoding</th></tr>
+          <tr><td>A</td><td>0</td></tr>
+          <tr><td>B</td><td>1</td></tr>
+          <tr><td>C</td><td>2</td></tr>
+          <tr><td>F</td><td>3</td></tr>
+        </table>
+      </div>
+      <strong style="color:var(--red2);">⚠️ Problem:</strong> The model may think Grade "F" (3) is greater than Grade "A" (0), which is wrong!<br>
+      <strong style="color:var(--green);">✅ Use when:</strong> Categories have a natural order (e.g., Low=0, Medium=1, High=2)
+    </div>
+
+    <button class="expand-btn" onclick="toggleExpand(this)">
+      <span>🔢 One-Hot Encoding — Create separate columns for each category</span><span class="expand-chevron">▼</span>
+    </button>
+    <div class="expand-content">
+      <strong>How it works:</strong> Create one binary column (0 or 1) for each category value.<br><br>
+      <div class="table-wrap" style="margin:10px 0;">
+        <table>
+          <tr><th>Original</th><th>City_Delhi</th><th>City_Mumbai</th><th>City_Agra</th></tr>
+          <tr><td>Delhi</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td>Mumbai</td><td>0</td><td>1</td><td>0</td></tr>
+          <tr><td>Agra</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>Delhi</td><td>1</td><td>0</td><td>0</td></tr>
+        </table>
+      </div>
+      <strong style="color:var(--green);">✅ Advantage:</strong> No false ordering — model treats all categories equally.<br>
+      <strong style="color:var(--red2);">⚠️ Disadvantage:</strong> Creates many new columns if there are many categories.
+    </div>
+
+    <button class="expand-btn" onclick="toggleExpand(this)">
+      <span>🔢 Binary Encoding — for Yes/No data</span><span class="expand-chevron">▼</span>
+    </button>
+    <div class="expand-content">
+      The simplest encoding. Map two categories to 0 and 1.<br><br>
+      <code>Male → 1 &nbsp;|&nbsp; Female → 0</code>&nbsp;&nbsp;<br>
+      <code>Yes → 1 &nbsp;|&nbsp; No → 0</code>&nbsp;&nbsp;<br>
+      <code>Passed → 1 &nbsp;|&nbsp; Failed → 0</code>
+    </div>
+  </div>
+
+  <!-- Encoding Mini Game -->
+  <div class="activity reveal">
+    <div class="activity-label">🎮 Encoding Match Game</div>
+    <div class="activity-title">Match each situation to the correct encoding type!</div>
+    <div class="match-game" id="encMatch">
+      <div class="match-row">
+        <div class="match-term">Blood Group: A, B, O, AB</div>
+        <div class="match-arrow">→</div>
+        <select class="match-select" id="em1">
+          <option value="">— Pick one —</option>
+          <option value="label">Label Encoding</option>
+          <option value="ohe">One-Hot Encoding</option>
+          <option value="bin">Binary Encoding</option>
+        </select>
+      </div>
+      <div class="match-row">
+        <div class="match-term">Gender: Male / Female</div>
+        <div class="match-arrow">→</div>
+        <select class="match-select" id="em2">
+          <option value="">— Pick one —</option>
+          <option value="label">Label Encoding</option>
+          <option value="ohe">One-Hot Encoding</option>
+          <option value="bin">Binary Encoding</option>
+        </select>
+      </div>
+      <div class="match-row">
+        <div class="match-term">Education: Low, Medium, High</div>
+        <div class="match-arrow">→</div>
+        <select class="match-select" id="em3">
+          <option value="">— Pick one —</option>
+          <option value="label">Label Encoding</option>
+          <option value="ohe">One-Hot Encoding</option>
+          <option value="bin">Binary Encoding</option>
+        </select>
+      </div>
+      <button class="match-check-btn" onclick="checkEncoding()">✅ Check Answers</button>
+      <div class="match-result" id="encResult"></div>
+    </div>
+  </div>
+
+  <!-- Quiz 2 -->
+  <div class="quiz-wrap reveal" id="q2">
+    <div class="quiz-label">🎯 Quick Check</div>
+    <div class="quiz-q">A student scored 75 in a dataset where Min=40 and Max=100. What is the normalized value?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkQuiz('q2',this,false)">A. 0.75</button>
+      <button class="quiz-opt" onclick="checkQuiz('q2',this,true)">B. 0.583</button>
+      <button class="quiz-opt" onclick="checkQuiz('q2',this,false)">C. 1.25</button>
+      <button class="quiz-opt" onclick="checkQuiz('q2',this,false)">D. 0.35</button>
+    </div>
+    <div class="quiz-feedback" id="q2-fb"></div>
+    <button class="quiz-retry" onclick="resetQuiz('q2')" style="display:none;" id="q2-retry">↺ Try Again</button>
+  </div>
+
+</section>
+
+<!-- ══════════════ SECTION 3: DATA INTEGRATION ══════════════ -->
+<section id="sec3" class="section-wrap">
+  <div class="sec-header reveal">
+    <div class="sec-icon">🔗</div>
+    <div class="sec-info">
+      <div class="sec-label">Section 3</div>
+      <div class="sec-title">Data Integration</div>
+    </div>
+  </div>
+
+  <div class="def-box reveal">
+    <div class="def-label">📖 What is Data Integration?</div>
+    <div class="def-text"><strong>Data Integration</strong> is the process of <strong>combining data from multiple, different sources</strong> into a single, unified view for analysis.</div>
+  </div>
+
+  <div class="callout teal reveal">
+    <span class="callout-icon">🏥</span>
+    <span class="callout-text"><strong>Real Example:</strong> A hospital has patient data in 3 different systems: Registration system (name, age), Lab system (test results), Pharmacy system (medicines given). Data Integration combines all 3 into one complete patient record!</span>
+  </div>
+
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:12px;" class="reveal">🔧 Methods of Data Integration</h3>
+
+  <div class="grid-2 reveal">
+    <div class="card green">
+      <div class="card-icon">📋</div>
+      <div class="card-title">Manual Integration</div>
+      <div class="card-body">Copy-paste data from different files into one Excel sheet. Slow and error-prone but simple.</div>
+    </div>
+    <div class="card blue">
+      <div class="card-icon">⚙️</div>
+      <div class="card-title">ETL (Extract, Transform, Load)</div>
+      <div class="card-body">Automated pipeline: Extract from sources → Transform/clean → Load into target database. Used in industry.</div>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">🗄️</div>
+      <div class="card-title">Data Warehouse</div>
+      <div class="card-body">A central database that stores integrated data from multiple sources. Used for business reporting.</div>
+    </div>
+    <div class="card purple">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">API Integration</div>
+      <div class="card-body">Automatically fetch and combine data from online sources using APIs (e.g., combining weather + sales data).</div>
+    </div>
+  </div>
+
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:12px;" class="reveal">🧩 Database Joins — The Core of Integration</h3>
+  <p class="prose reveal">When combining two tables, we use <strong>Joins</strong> — a concept from SQL databases. Think of it like connecting two spreadsheets using a common column (like Student ID).</p>
+
+  <div class="table-wrap reveal">
+    <table>
+      <tr><th>Join Type</th><th>What it does</th><th>Analogy</th></tr>
+      <tr><td><strong style="color:var(--teal2);">INNER JOIN</strong></td><td>Only rows that match in BOTH tables</td><td>Only mutual friends</td></tr>
+      <tr><td><strong style="color:var(--blue2);">LEFT JOIN</strong></td><td>All rows from left table + matching from right</td><td>All of yours + common</td></tr>
+      <tr><td><strong style="color:var(--green);">RIGHT JOIN</strong></td><td>All rows from right table + matching from left</td><td>All of theirs + common</td></tr>
+      <tr><td><strong style="color:var(--purple);">FULL JOIN</strong></td><td>All rows from both tables</td><td>Everyone, from both sides</td></tr>
+    </table>
+  </div>
+
+  <div class="ex-box reveal">
+    <div class="ex-label">📌 Visual Example — INNER JOIN</div>
+    <div class="ex-text">
+      <strong>Table A — Students:</strong><br>
+      <code>101-Rahul | 102-Priya | 103-Arjun</code><br><br>
+      <strong>Table B — Marks:</strong><br>
+      <code>101-85 | 102-72 | 104-90</code><br><br>
+      <strong>INNER JOIN result (only matching IDs 101, 102):</strong><br>
+      <code>101-Rahul-85 | 102-Priya-72</code><br>
+      <span style="color:var(--muted);">→ ID 103 (no marks) and ID 104 (no name) are excluded.</span>
+    </div>
+  </div>
+
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1rem;color:#fff;margin-bottom:12px;" class="reveal">⚠️ Challenges in Data Integration</h3>
+  <div class="grid-2 reveal">
+    <div style="background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.2);border-radius:12px;padding:14px;">
+      <div style="font-weight:800;color:var(--red2);margin-bottom:6px;">🔴 Schema Conflicts</div>
+      <div style="font-size:.86rem;color:var(--soft);">Same data stored differently: One table says "DOB", another says "Date_of_Birth". Need to standardize column names.</div>
+    </div>
+    <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:14px;">
+      <div style="font-weight:800;color:var(--orange);margin-bottom:6px;">🟡 Duplicate Records</div>
+      <div style="font-size:.86rem;color:var(--soft);">Same person appears in two systems with slightly different names. "Rahul Sharma" vs "R. Sharma".</div>
+    </div>
+    <div style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.2);border-radius:12px;padding:14px;">
+      <div style="font-weight:800;color:var(--purple);margin-bottom:6px;">🟣 Data Conflicts</div>
+      <div style="font-size:.86rem;color:var(--soft);">Two sources have contradictory values for the same entity. Which source is correct?</div>
+    </div>
+    <div style="background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:14px;">
+      <div style="font-weight:800;color:var(--blue2);margin-bottom:6px;">🔵 Different Formats</div>
+      <div style="font-size:.86rem;color:var(--soft);">Dates in different formats, currencies in different units. Needs transformation before merging.</div>
+    </div>
+  </div>
+
+  <!-- Quiz 3 -->
+  <div class="quiz-wrap reveal" id="q3">
+    <div class="quiz-label">🎯 Quick Check</div>
+    <div class="quiz-q">You have Table A (students) and Table B (marks). You want ONLY the students who have marks recorded. Which JOIN do you use?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkQuiz('q3',this,false)">A. LEFT JOIN</button>
+      <button class="quiz-opt" onclick="checkQuiz('q3',this,true)">B. INNER JOIN</button>
+      <button class="quiz-opt" onclick="checkQuiz('q3',this,false)">C. FULL JOIN</button>
+      <button class="quiz-opt" onclick="checkQuiz('q3',this,false)">D. RIGHT JOIN</button>
+    </div>
+    <div class="quiz-feedback" id="q3-fb"></div>
+    <button class="quiz-retry" onclick="resetQuiz('q3')" style="display:none;" id="q3-retry">↺ Try Again</button>
+  </div>
+
+</section>
+
+<!-- ══════════════ SECTION 4: EXCEL ══════════════ -->
+<section id="sec4" class="section-wrap">
+  <div class="sec-header reveal">
+    <div class="sec-icon">📊</div>
+    <div class="sec-info">
+      <div class="sec-label">Section 4</div>
+      <div class="sec-title">Excel for Data Handling</div>
+    </div>
+  </div>
+
+  <p class="prose reveal">Microsoft Excel is the <strong>most widely used data tool in the world</strong> — especially in Indian businesses. Before you learn Python or SQL, mastering Excel gives you a huge practical advantage!</p>
+
+  <div class="callout success reveal">
+    <span class="callout-icon">💼</span>
+    <span class="callout-text"><strong>Industry Fact:</strong> More than 750 million people use Excel worldwide. In India, almost every office job requires Excel skills. Data Analysts at banks, hospitals, and retail companies use Excel every single day!</span>
+  </div>
+
+  <!-- Excel Functions -->
+  <div class="sec-divider"></div>
+  <h3 style="font-weight:900;font-size:1.05rem;color:#fff;margin-bottom:14px;" class="reveal">🔧 Essential Excel Functions</h3>
+
+  <!-- SUM/AVERAGE/COUNT -->
+  <div class="card green reveal">
+    <div class="card-title">📐 Basic Statistical Functions</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=SUM(B2:B10)</span></div>
+        <div class="excel-result">→ Adds all values in cells B2 to B10. Example: Total marks of 9 students = <strong>630</strong></div>
+      </div>
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=AVERAGE(B2:B10)</span></div>
+        <div class="excel-result">→ Calculates mean. Example: Average marks = <strong>70</strong></div>
+      </div>
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=COUNT(B2:B10)</span></div>
+        <div class="excel-result">→ Counts cells with numbers. Example: 9 students have marks entered = <strong>9</strong></div>
+      </div>
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=MAX(B2:B10) &nbsp;|&nbsp; =MIN(B2:B10)</span></div>
+        <div class="excel-result">→ Highest mark = <strong>95</strong>, Lowest mark = <strong>42</strong></div>
+      </div>
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=MEDIAN(B2:B10)</span></div>
+        <div class="excel-result">→ Middle value when sorted. Useful when data has outliers. Example: <strong>72</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IF Function -->
+  <div class="card orange reveal">
+    <div class="card-title">🔀 IF Function — Conditional Logic</div>
+    <div class="card-body" style="margin-bottom:10px;">Used to make decisions: "IF something is true, show this, ELSE show that."</div>
+    <div class="excel-box">
+      <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=IF(B2>=40, "Pass", "Fail")</span></div>
+      <div class="excel-result">→ If marks ≥ 40, show "Pass", otherwise show "Fail"</div>
+    </div>
+    <div class="excel-box">
+      <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=IF(B2>=75,"A", IF(B2>=60,"B", "C"))</span></div>
+      <div class="excel-result">→ Nested IF: Grade A if ≥75, Grade B if ≥60, Grade C otherwise</div>
+    </div>
+    <!-- IF Simulator -->
+    <div class="inter-box orange-b" style="margin-top:14px;">
+      <div class="inter-label" style="background:var(--orange);">🎮 TRY IT — IF SIMULATOR</div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+        <div class="num-field"><label>Marks (B2)</label><input type="number" id="ifMarks" value="72" min="0" max="100"></div>
+        <div class="num-field"><label>Pass Threshold</label><input type="number" id="ifThresh" value="40" min="0" max="100"></div>
+      </div>
+      <button class="calc-btn orange-btn" onclick="simIF()">Run =IF() →</button>
+      <div class="calc-result" id="ifResult"><span style="color:var(--muted)">Click to simulate!</span></div>
+    </div>
+  </div>
+
+  <!-- COUNTIF / SUMIF -->
+  <div class="card blue reveal">
+    <div class="card-title">🔢 COUNTIF & SUMIF — Conditional Count/Sum</div>
+    <div class="card-body" style="margin-bottom:10px;">Count or sum cells that meet a specific condition.</div>
+    <div class="excel-box">
+      <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=COUNTIF(C2:C10, "Pass")</span></div>
+      <div class="excel-result">→ Count how many cells say "Pass". Example: <strong>7 students passed</strong></div>
+    </div>
+    <div class="excel-box">
+      <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=SUMIF(C2:C10, "Pass", B2:B10)</span></div>
+      <div class="excel-result">→ Sum marks of only students who "Pass". Example: Total passing marks = <strong>510</strong></div>
+    </div>
+    <div class="excel-box">
+      <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=COUNTIF(B2:B10, "&gt;=75")</span></div>
+      <div class="excel-result">→ Count students with marks ≥ 75. Example: <strong>3 students got A grade</strong></div>
+    </div>
+  </div>
+
+  <!-- VLOOKUP -->
+  <div class="card purple reveal">
+    <div class="card-title">🔍 VLOOKUP — Searching in Tables</div>
+    <div class="card-body" style="margin-bottom:10px;">Look up a value in the first column of a table and return a value from the same row. Like a search engine for your spreadsheet!</div>
+    <div class="excel-box">
+      <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=VLOOKUP(lookup_value, table_range, col_num, 0)</span></div>
+      <div class="excel-result">→ <strong>Parameters:</strong> What to search | Where to search | Which column to return | 0 = exact match</div>
+    </div>
+    <div class="excel-box">
+      <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=VLOOKUP(105, A2:C10, 2, 0)</span></div>
+      <div class="excel-result">→ Find Student ID 105 in column A, and return the value from column 2 (Name) = <strong>"Anjali"</strong></div>
+    </div>
+    <div class="ex-box" style="margin-top:10px;">
+      <div class="ex-label">🎯 Real Use Case</div>
+      <div class="ex-text">You have a product ID in one sheet and prices in another. VLOOKUP finds the ID in the price list and returns the correct price automatically — no manual searching!</div>
+    </div>
+  </div>
+
+  <!-- Other Useful Functions -->
+  <div class="card reveal">
+    <div class="card-title">✨ More Useful Functions for Data Cleaning in Excel</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=TRIM(A2)</span></div>
+        <div class="excel-result">→ Removes extra spaces. Fixes " Rahul " → <strong>"Rahul"</strong></div>
+      </div>
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=UPPER(A2) &nbsp;|&nbsp; =LOWER(A2) &nbsp;|&nbsp; =PROPER(A2)</span></div>
+        <div class="excel-result">→ "rahul" → <strong>RAHUL</strong> | <strong>rahul</strong> | <strong>Rahul</strong> — Fixes case inconsistencies!</div>
+      </div>
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=ISNUMBER(A2) &nbsp;|&nbsp; =ISBLANK(A2)</span></div>
+        <div class="excel-result">→ Check if a cell has a number or is empty. Returns TRUE or FALSE.</div>
+      </div>
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=CONCATENATE(A2, " ", B2)</span></div>
+        <div class="excel-result">→ Join cells: "Rahul" + " " + "Sharma" = <strong>"Rahul Sharma"</strong></div>
+      </div>
+      <div class="excel-box">
+        <div class="excel-bar"><span class="excel-bar-label">fx</span><span class="excel-formula">=SUBSTITUTE(A2, "male", "Male")</span></div>
+        <div class="excel-result">→ Replace text inside a cell. Fixes encoding inconsistencies automatically.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Excel Formula Practice -->
+  <div class="inter-box green-b reveal" style="margin-top:18px;">
+    <div class="inter-label" style="background:var(--green);">🧮 EXCEL FORMULA QUIZ</div>
+    <p style="margin-top:14px;font-size:.88rem;color:var(--soft);margin-bottom:12px;">Given this student data, write/select the formula to answer each question:</p>
+    <div class="table-wrap" style="margin-bottom:14px;">
+      <table>
+        <tr><th>A — Student ID</th><th>B — Marks</th><th>C — Grade</th></tr>
+        <tr><td>101</td><td>85</td><td>A</td></tr>
+        <tr><td>102</td><td>42</td><td>C</td></tr>
+        <tr><td>103</td><td>60</td><td>B</td></tr>
+        <tr><td>104</td><td>38</td><td>F</td></tr>
+        <tr><td>105</td><td>77</td><td>A</td></tr>
+      </table>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;" id="excelQuiz">
+      <div>
+        <div style="font-size:.88rem;font-weight:700;color:#fff;margin-bottom:6px;">Q1: What formula gives the total marks of ALL students?</div>
+        <select class="match-select" style="width:100%;" id="eq1">
+          <option value="">— Pick formula —</option>
+          <option value="wrong">=COUNT(B2:B6)</option>
+          <option value="correct">=SUM(B2:B6)</option>
+          <option value="wrong">=AVERAGE(B2:B6)</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:.88rem;font-weight:700;color:#fff;margin-bottom:6px;">Q2: Find name (col 2) of student with ID 103 from range A2:C6?</div>
+        <select class="match-select" style="width:100%;" id="eq2">
+          <option value="">— Pick formula —</option>
+          <option value="wrong">=IF(A2=103, B2, "")</option>
+          <option value="correct">=VLOOKUP(103, A2:C6, 2, 0)</option>
+          <option value="wrong">=COUNTIF(A2:A6, 103)</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:.88rem;font-weight:700;color:#fff;margin-bottom:6px;">Q3: Show "Pass" if marks ≥ 40, else "Fail" for student in B2?</div>
+        <select class="match-select" style="width:100%;" id="eq3">
+          <option value="">— Pick formula —</option>
+          <option value="wrong">=COUNTIF(B2,">=40")</option>
+          <option value="wrong">=SUMIF(B2, ">=40")</option>
+          <option value="correct">=IF(B2>=40, "Pass", "Fail")</option>
+        </select>
+      </div>
+      <button class="match-check-btn" style="background:var(--green);" onclick="checkExcel()">✅ Check Answers</button>
+      <div class="match-result" id="excelResult"></div>
+    </div>
+  </div>
+
+  <!-- Quiz 4 -->
+  <div class="quiz-wrap reveal" id="q4">
+    <div class="quiz-label">🎯 Quick Check</div>
+    <div class="quiz-q">Which Excel function would you use to fix extra spaces in names like " Rahul " (space before and after)?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkQuiz('q4',this,false)">A. =CLEAN()</button>
+      <button class="quiz-opt" onclick="checkQuiz('q4',this,true)">B. =TRIM()</button>
+      <button class="quiz-opt" onclick="checkQuiz('q4',this,false)">C. =REMOVE()</button>
+      <button class="quiz-opt" onclick="checkQuiz('q4',this,false)">D. =STRIP()</button>
+    </div>
+    <div class="quiz-feedback" id="q4-fb"></div>
+    <button class="quiz-retry" onclick="resetQuiz('q4')" style="display:none;" id="q4-retry">↺ Try Again</button>
+  </div>
+
+</section>
+
+<!-- ══════════════ FINAL SUMMARY ══════════════ -->
+<div class="summary-section" style="max-width:680px;margin:0 auto;padding:0 16px 80px;">
+  <div class="sec-header reveal" style="margin-bottom:20px;">
+    <div class="sec-icon">✅</div>
+    <div class="sec-info">
+      <div class="sec-label">Unit 2 Wrap-Up</div>
+      <div class="sec-title">Quick Revision Summary</div>
+    </div>
+  </div>
+  <div class="summary-grid reveal">
+    <div class="sum-card"><div class="sum-icon">🧹</div><div class="sum-term">Data Cleaning</div><div class="sum-def">Fix missing values, outliers, inconsistencies, duplicates before analysis.</div></div>
+    <div class="sum-card"><div class="sum-icon">❓</div><div class="sum-term">Missing Values</div><div class="sum-def">Fill with Mean (no outliers), Median (with outliers), Mode (categorical), or Delete.</div></div>
+    <div class="sum-card"><div class="sum-icon">🔺</div><div class="sum-term">Outliers</div><div class="sum-def">Detected using IQR method. Remove, cap, or keep depending on context.</div></div>
+    <div class="sum-card"><div class="sum-icon">📏</div><div class="sum-term">Normalization</div><div class="sum-def">(X−min)/(max−min). Scales to 0–1. Sensitive to outliers.</div></div>
+    <div class="sum-card"><div class="sum-icon">📐</div><div class="sum-term">Standardization</div><div class="sum-def">Z = (X−μ)/σ. Mean=0, SD=1. Robust to outliers.</div></div>
+    <div class="sum-card"><div class="sum-icon">🔤</div><div class="sum-term">Encoding</div><div class="sum-def">Label (ordered), One-Hot (no order), Binary (yes/no) — convert text to numbers.</div></div>
+    <div class="sum-card"><div class="sum-icon">🔗</div><div class="sum-term">Data Integration</div><div class="sum-def">Combining data from multiple sources. Uses Joins (Inner, Left, Right, Full).</div></div>
+    <div class="sum-card"><div class="sum-icon">📊</div><div class="sum-term">Excel Key Functions</div><div class="sum-def">SUM, AVERAGE, IF, COUNTIF, VLOOKUP, TRIM, UPPER, LOWER — must know all!</div></div>
+  </div>
+
+  <div class="callout" style="margin-top:22px;" class="reveal">
+    <span class="callout-icon">📝</span>
+    <span class="callout-text">
+      <strong>Exam Tips for Unit 2:</strong><br>
+      • Always write the formula for Normalization and Standardization with a worked example<br>
+      • Know IQR formula and how to detect outliers step-by-step<br>
+      • Know when to use Mean vs Median vs Mode for filling missing values<br>
+      • Know the difference between Label Encoding and One-Hot Encoding with examples<br>
+      • Be able to write at least 5 Excel formulas with explanation
+    </span>
+  </div>
+
+  <div class="card" style="margin-top:20px;background:linear-gradient(135deg,rgba(20,184,166,.1),rgba(59,130,246,.06));">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="font-size:2rem;">🎓</div>
+      <div>
+        <div style="font-weight:800;color:#fff;">K.P. Singh · Introduction to Data Science</div>
+        <div style="font-size:.82rem;color:var(--muted);">Unit II · BCA Semester I · Lecture-09 · Data Cleaning, Transformation, Integration & Excel</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <span class="name">K.P. Singh</span> · Introduction to Data Science · Unit 2 · BCA Sem I<br>
+  <span style="font-size:.75rem;margin-top:4px;display:block;">Interactive Study Notes — Mobile Friendly</span>
+</footer>
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+/* ── PROGRESS + SCROLL ── */
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const p=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('readBar').style.width=p+'%';
+  document.getElementById('btt').classList.toggle('show',h.scrollTop>300);
+});
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* ── QUIZ ── */
+function checkQuiz(id,btn,correct){
+  document.querySelectorAll(`#${id} .quiz-opt`).forEach(o=>o.disabled=true);
+  const fb=document.getElementById(`${id}-fb`);
+  if(correct){btn.classList.add('correct');fb.className='quiz-feedback show ok';fb.innerHTML='🎉 Correct! Well done!';}
+  else{
+    btn.classList.add('wrong');fb.className='quiz-feedback show bad';fb.innerHTML='❌ Not quite! See the correct answer highlighted.';
+    document.querySelectorAll(`#${id} .quiz-opt`).forEach(o=>{if(o.getAttribute('onclick').includes('true'))o.classList.add('correct');});
+  }
+  document.getElementById(`${id}-retry`).style.display='block';
+}
+function resetQuiz(id){
+  document.querySelectorAll(`#${id} .quiz-opt`).forEach(o=>{o.disabled=false;o.classList.remove('correct','wrong');});
+  document.getElementById(`${id}-fb`).className='quiz-feedback';
+  document.getElementById(`${id}-retry`).style.display='none';
+}
+
+/* ── EXPAND ── */
+function toggleExpand(btn){btn.classList.toggle('open');btn.nextElementSibling.classList.toggle('open');}
+
+/* ── MISSING VALUE CALC ── */
+function calcMissingStats(){
+  const raw=document.getElementById('mvInput').value;
+  const all=raw.split(',').map(v=>v.trim());
+  const nums=all.filter(v=>v!=='').map(Number).filter(v=>!isNaN(v));
+  const missingCount=all.filter(v=>v==='').length;
+  if(nums.length===0){document.getElementById('mvResult').innerHTML='<span style="color:var(--red2)">No valid numbers found.</span>';return;}
+  const mean=(nums.reduce((a,b)=>a+b,0)/nums.length);
+  const sorted=[...nums].sort((a,b)=>a-b);
+  const mid=Math.floor(sorted.length/2);
+  const median=sorted.length%2===0?(sorted[mid-1]+sorted[mid])/2:sorted[mid];
+  const freq={};nums.forEach(n=>{freq[n]=(freq[n]||0)+1;});
+  const mode=Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
+  const suggestion=missingCount===0?'<span style="color:var(--green)">✅ No missing values detected!</span>':
+    `<strong style="color:var(--orange)">⚠️ ${missingCount} missing value(s) found.</strong><br>
+     <strong>Recommendation:</strong> Since mean=${mean.toFixed(2)} and median=${median.toFixed(2)}, 
+     ${Math.abs(mean-median)>5?'they differ significantly — use <strong style="color:var(--teal2)">Median</strong> (data may have outliers)':'they are close — use <strong style="color:var(--teal2)">Mean</strong> is fine'}.`;
+  document.getElementById('mvResult').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="text-align:center;"><div style="font-family:'Space Mono',monospace;font-size:1.3rem;color:var(--teal2);font-weight:700;">${mean.toFixed(2)}</div><div style="font-size:.75rem;color:var(--muted);">Mean</div></div>
+      <div style="text-align:center;"><div style="font-family:'Space Mono',monospace;font-size:1.3rem;color:var(--blue2);font-weight:700;">${median}</div><div style="font-size:.75rem;color:var(--muted);">Median</div></div>
+      <div style="text-align:center;"><div style="font-family:'Space Mono',monospace;font-size:1.3rem;color:var(--purple);font-weight:700;">${mode}</div><div style="font-size:.75rem;color:var(--muted);">Mode</div></div>
+    </div>${suggestion}`;
+}
+
+/* ── OUTLIER DETECTOR (IQR) ── */
+function detectOutliers(){
+  const raw=document.getElementById('iqrInput').value;
+  const nums=raw.split(',').map(v=>+v.trim()).filter(v=>!isNaN(v));
+  if(nums.length<4){document.getElementById('iqrResult').innerHTML='<span style="color:var(--red2)">Enter at least 4 values.</span>';return;}
+  const s=[...nums].sort((a,b)=>a-b);
+  const q1=s[Math.floor(s.length/4)], q3=s[Math.floor(3*s.length/4)];
+  const iqr=q3-q1, lo=q1-1.5*iqr, hi=q3+1.5*iqr;
+  const outliers=nums.filter(n=>n<lo||n>hi);
+  const clean=nums.filter(n=>n>=lo&&n<=hi);
+  document.getElementById('iqrResult').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div style="text-align:center;"><div style="font-family:'Space Mono',monospace;font-size:1rem;color:var(--teal2);font-weight:700;">${q1}</div><div style="font-size:.72rem;color:var(--muted);">Q1</div></div>
+      <div style="text-align:center;"><div style="font-family:'Space Mono',monospace;font-size:1rem;color:var(--blue2);font-weight:700;">${q3}</div><div style="font-size:.72rem;color:var(--muted);">Q3</div></div>
+      <div style="text-align:center;"><div style="font-family:'Space Mono',monospace;font-size:1rem;color:var(--purple);font-weight:700;">${iqr}</div><div style="font-size:.72rem;color:var(--muted);">IQR</div></div>
+      <div style="text-align:center;"><div style="font-family:'Space Mono',monospace;font-size:1rem;color:var(--orange);font-weight:700;">[${lo.toFixed(1)}, ${hi.toFixed(1)}]</div><div style="font-size:.72rem;color:var(--muted);">Valid Range</div></div>
+    </div>
+    ${outliers.length>0?`<div style="background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:.88rem;"><strong style="color:var(--red2);">🔺 Outliers found: ${outliers.join(', ')}</strong><br><span style="color:var(--soft)">These lie outside [${lo.toFixed(1)}, ${hi.toFixed(1)}]</span></div>`:''}
+    <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:10px 14px;font-size:.88rem;">
+      <strong style="color:var(--green);">✅ Clean values: ${clean.join(', ')}</strong>
+    </div>`;
+}
+
+/* ── NORMALIZATION ── */
+function calcNorm(){
+  const raw=document.getElementById('normData').value;
+  const nums=raw.split(',').map(v=>+v.trim()).filter(v=>!isNaN(v));
+  const x=+document.getElementById('normX').value;
+  if(nums.length<2){document.getElementById('normResult').innerHTML='<span style="color:var(--red2)">Need at least 2 values.</span>';return;}
+  const mn=Math.min(...nums),mx=Math.max(...nums);
+  const result=(x-mn)/(mx-mn);
+  document.getElementById('normResult').innerHTML=`
+    <div style="font-family:'Space Mono',monospace;margin-bottom:8px;">
+      min=${mn}, max=${mx}<br>
+      X_norm = (${x} − ${mn}) / (${mx} − ${mn}) = ${(x-mn)} / ${(mx-mn)} = <strong style="color:var(--teal2);font-size:1.1rem;">${result.toFixed(4)}</strong>
+    </div>
+    <div style="font-size:.8rem;color:var(--muted);">${result===0?'→ This is the minimum value (0.00)':result===1?'→ This is the maximum value (1.00)':result>0.5?`→ Above average (${(result*100).toFixed(1)}% of the way to max)`:`→ Below average (${(result*100).toFixed(1)}% of the way to max)`}</div>
+    <div style="margin-top:10px;background:var(--border);border-radius:6px;height:10px;overflow:hidden;"><div style="width:${Math.min(result*100,100).toFixed(1)}%;height:100%;background:linear-gradient(to right,var(--teal),var(--blue));border-radius:6px;"></div></div>`;
+}
+
+/* ── Z-SCORE ── */
+function calcZScore(){
+  const raw=document.getElementById('zData').value;
+  const nums=raw.split(',').map(v=>+v.trim()).filter(v=>!isNaN(v));
+  const x=+document.getElementById('zX').value;
+  if(nums.length<2){document.getElementById('zResult').innerHTML='<span style="color:var(--red2)">Need at least 2 values.</span>';return;}
+  const mean=nums.reduce((a,b)=>a+b,0)/nums.length;
+  const sd=Math.sqrt(nums.reduce((a,b)=>a+(b-mean)**2,0)/nums.length);
+  const z=(x-mean)/sd;
+  let interp='';
+  if(Math.abs(z)>3)interp='<span style="color:var(--red2)">⚠️ Extreme outlier (|Z|>3)!</span>';
+  else if(Math.abs(z)>2)interp='<span style="color:var(--orange)">⚠️ Unusual value (|Z|>2)</span>';
+  else if(z>0)interp=`<span style="color:var(--blue2)">Above average by ${Math.abs(z).toFixed(2)} standard deviations</span>`;
+  else if(z<0)interp=`<span style="color:var(--purple)">Below average by ${Math.abs(z).toFixed(2)} standard deviations</span>`;
+  else interp='<span style="color:var(--green)">Exactly average!</span>';
+  document.getElementById('zResult').innerHTML=`
+    <div style="font-family:'Space Mono',monospace;margin-bottom:8px;">
+      μ = ${mean.toFixed(3)}, σ = ${sd.toFixed(3)}<br>
+      Z = (${x} − ${mean.toFixed(3)}) / ${sd.toFixed(3)} = <strong style="color:var(--blue2);font-size:1.1rem;">${z.toFixed(4)}</strong>
+    </div>${interp}`;
+}
+
+/* ── ENCODING MATCH ── */
+function checkEncoding(){
+  const answers={em1:'ohe',em2:'bin',em3:'label'};
+  let score=0;
+  Object.entries(answers).forEach(([id,ans])=>{
+    const sel=document.getElementById(id);
+    if(sel.value===ans){score++;sel.style.borderColor='var(--green)';}
+    else sel.style.borderColor='var(--red2)';
+  });
+  const r=document.getElementById('encResult');
+  r.style.display='block';
+  if(score===3){r.className='match-result show match-ok';r.innerHTML='🎉 Perfect! Blood Group → One-Hot, Gender → Binary, Education Level → Label Encoding!';}
+  else{r.className='match-result show match-bad';r.innerHTML=`${score}/3 correct. Hint: Blood Group (no order → One-Hot), Gender (2 values → Binary), Education (ordered → Label).`;}
+}
+
+/* ── IF SIMULATOR ── */
+function simIF(){
+  const marks=+document.getElementById('ifMarks').value;
+  const thresh=+document.getElementById('ifThresh').value;
+  const pass=marks>=thresh;
+  document.getElementById('ifResult').innerHTML=`
+    <div style="font-family:'Space Mono',monospace;margin-bottom:6px;">=IF(${marks}>=${thresh}, "Pass", "Fail")</div>
+    <div style="font-size:1.1rem;font-weight:700;color:${pass?'var(--green)':'var(--red2)'};">${pass?'✅ "Pass"':'❌ "Fail"'}</div>
+    <div style="font-size:.8rem;color:var(--muted);margin-top:4px;">${marks} ${pass?'≥':'<'} ${thresh} → condition is ${pass?'TRUE':'FALSE'}</div>`;
+}
+
+/* ── EXCEL QUIZ ── */
+function checkExcel(){
+  const ans={eq1:'correct',eq2:'correct',eq3:'correct'};
+  let score=0;
+  ['eq1','eq2','eq3'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(sel.value==='correct'){score++;sel.style.borderColor='var(--green)';}
+    else{sel.style.borderColor='var(--red2)';}
+  });
+  const r=document.getElementById('excelResult');
+  r.style.display='block';
+  if(score===3){r.className='match-result show match-ok';r.innerHTML='🎉 Perfect score! You know your Excel formulas!';}
+  else{r.className='match-result show match-bad';r.innerHTML=`${score}/3 correct. Q1: =SUM(B2:B6), Q2: =VLOOKUP(103,A2:C6,2,0), Q3: =IF(B2>=40,"Pass","Fail")`;}
+}
+</script>
+</body>
+</html>
