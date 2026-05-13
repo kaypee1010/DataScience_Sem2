@@ -45,7 +45,6 @@ body::before{
     radial-gradient(ellipse 55% 40% at 95% 5%, rgba(200,134,10,.06), transparent),
     radial-gradient(ellipse 40% 50% at 5% 95%, rgba(13,115,119,.05), transparent);
 }
-/* Elegant diagonal line pattern */
 body::after{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image: repeating-linear-gradient(
@@ -579,7 +578,8 @@ body::after{
       <input class="form-input" id="inp-name" type="text" placeholder="e.g. Riya Verma" autocomplete="name">
     </div>
     <div class="form-group">
-      <label class="form-label" id="inp-roll">Roll Number</label>
+      <!-- ✅ FIX: was id="inp-roll" on the label (duplicate id, no .value) — changed to for="inp-roll" -->
+      <label class="form-label" for="inp-roll">Roll Number</label>
       <input class="form-input" id="inp-roll" type="text" placeholder="e.g. DD121BCA001" autocomplete="off" style="text-transform:uppercase">
     </div>
     <div class="form-row">
@@ -658,139 +658,79 @@ body::after{
 </div>
 
 <script>
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyxnJTtEKkZvwOsdwB-6tBW--l_JSDcnJoTLnzL3HevQE2HLIP_frsPlRs7QtGW8PJIDQ/exec';
+const SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
 
 const sections = [
 {id:1,title:"Practical 1 — PivotTable",subtitle:"Summarise & Analyse Data",labClass:"lab-1",questions:[
-  // S1 Analogy-Based
   {stem:"Think of a PivotTable like a college canteen bill summary — it takes individual orders and groups them by student name, showing totals. In Excel terms, what does a PivotTable do?",tag:"Analogy",opts:["It draws bar charts from selected cells","It organises and summarises large data into meaningful grouped totals","It corrects spelling errors in a spreadsheet","It converts formulas into fixed values"],ans:1},
-  // S2 Witty Concept
   {stem:"A student proudly announced: 'I manually added 500 sales values with a calculator to get monthly totals.' A PivotTable would have done this in approximately how many clicks?",tag:"Concept",opts:["500 clicks — one per row","It still requires a formula for every row","A few clicks — drag the field to Values and Excel summarises automatically","PivotTables cannot calculate totals"],ans:2},
-  // S3 Riddle
   {stem:"I sit inside a PivotTable. I decide HOW numbers are combined — sum, average, count, max. Without me, you only have raw data and no insight. What am I?",tag:"Riddle",opts:["A Filter field","A Row label","A Value field with a summary function","A Column header cell"],ans:2},
-  // S4 Scenario
   {stem:"Reena has a dataset with columns: StudentName, Subject, Marks. She wants rows to show student names and columns to show subjects, with marks as values. Which PivotTable area does she drag 'Subject' to?",tag:"Scenario",opts:["Values area","Filters area","Columns area","Rows area"],ans:2},
-  // S5 Misconception Buster
   {stem:"Many students believe that editing a value inside a PivotTable directly updates the original dataset. What actually happens?",tag:"Misconception",opts:["Yes — it updates both simultaneously","The original data updates but the PivotTable does not refresh","You cannot directly edit values inside a PivotTable — it displays calculated summaries only","Editing a PivotTable deletes the original row"],ans:2},
-  // S6 Debug the Mistake
   {stem:"Arjun drags 'Date' to Values and sees a count of dates instead of a sum of sales. Where is his mistake?",tag:"Debug",opts:["He should put 'Date' in Rows and 'Sales' in Values","Dates cannot appear anywhere in a PivotTable","He should rename the column before adding it","The dataset must be sorted first"],ans:0},
-  // S7 Concept Application
   {stem:"A manager has 10,000 rows of transaction data and needs total revenue per city per product. Without writing a single formula, the fastest tool is:",tag:"Application",opts:["VLOOKUP across 10,000 rows","A manually created summary table","A PivotTable with City in Rows, Product in Columns, Revenue in Values","A pie chart of all transactions"],ans:2},
-  // S8 Best Definition
   {stem:"Which is the MOST accurate definition of a PivotTable?",tag:"Definition",opts:["A table that automatically corrects data entry errors","An interactive tool that reorganises and summarises data from a larger table without changing the source","A formula that adds selected cells from multiple sheets","A chart type that rotates based on screen orientation"],ans:1},
-  // S9 Sequence
   {stem:"What is the correct order to create a PivotTable from scratch?",tag:"Sequence",opts:["Select data → Insert tab → PivotTable → Choose location → Drag fields","Drag fields → Select data → Insert → Choose location","Insert → Drag fields → Select data → Format","Choose location → Insert → Select data → Drag fields"],ans:0},
-  // S10 Cause→Effect
   {stem:"A student adds new rows of data to the source table after creating a PivotTable. The PivotTable still shows the old totals. What is the CAUSE?",tag:"Cause→Effect",opts:["PivotTables update only when the workbook is closed and reopened","The source range was fixed and the PivotTable was not refreshed after adding data","The new rows need a different format","Excel automatically excludes rows added after PivotTable creation"],ans:1}
 ]},
 {id:2,title:"Practical 2 — PivotChart",subtitle:"Create & Customise from PivotTable",labClass:"lab-2",questions:[
-  // S1 Analogy
   {stem:"If a PivotTable is like a school report card (numbers summarised neatly), then a PivotChart is like:",tag:"Analogy",opts:["The marksheet printed in black and white","A visual graph of the same report card data that updates when the report changes","A form used to enter new student marks","The printer settings for the report card"],ans:1},
-  // S2 Witty
   {stem:"Shivam created a beautiful bar chart from scratch, manually typed every data value, and spent 45 minutes formatting it. His smarter classmate used a PivotChart instead. The key advantage of a PivotChart is:",tag:"Concept",opts:["It has more colour options","It automatically links to the PivotTable and updates when filters change","It is the only chart type in Excel","It works without any data"],ans:1},
-  // S3 Riddle
   {stem:"I am a small button that appears on a PivotChart. When clicked, I let users filter the chart interactively without touching the worksheet. What am I?",tag:"Riddle",opts:["A sparkline","A data label","A field button / interactive filter control","A chart border handle"],ans:2},
-  // S4 Scenario
   {stem:"Priya has a PivotTable showing sales by Region and Month. She inserts a PivotChart and then changes the Region filter from 'All' to 'North'. What happens to the PivotChart?",tag:"Scenario",opts:["Nothing — charts don't respond to PivotTable filters","The chart type changes automatically to a pie chart","The chart updates automatically to show only North region data","A new worksheet is created"],ans:2},
-  // S5 Misconception
   {stem:"A common student belief: 'I can delete the PivotTable and the PivotChart will continue working normally.' What really happens?",tag:"Misconception",opts:["Correct — the PivotChart becomes independent","The PivotChart converts to a static regular chart with no filter functionality","The PivotChart deletes itself automatically","The workbook crashes"],ans:1},
-  // S6 Debug
   {stem:"Karan's PivotChart shows the same value for all months in its legend. He notices it's a Pie chart. What is the likely problem?",tag:"Debug",opts:["Pie charts cannot read PivotTable data","A pie chart shows one series — he needs to change to a Column or Line chart to show monthly trends","He forgot to refresh the PivotTable","Pie charts require a minimum of 10 data points"],ans:1},
-  // S7 Application
   {stem:"A sales manager wants a visual that automatically changes when a region filter is applied. Which is the BEST tool?",tag:"Application",opts:["A regular column chart with manual data entry","A PivotChart connected to a PivotTable","A hand-drawn bar chart scanned into Excel","A SmartArt diagram"],ans:1},
-  // S8 Definition
   {stem:"Which is the MOST accurate definition of a PivotChart?",tag:"Definition",opts:["A chart pasted as an image from another application","A chart created manually from typed data","A visual representation directly linked to a PivotTable, reflecting its filters and summaries dynamically","A chart that pivots or rotates 360 degrees on click"],ans:2},
-  // S9 Sequence
   {stem:"What is the correct order to insert a PivotChart from an existing PivotTable?",tag:"Sequence",opts:["Insert tab → PivotChart → click anywhere outside → select PivotTable","Click inside the PivotTable → Insert tab → PivotChart → choose chart type → OK","Select a blank cell → Draw chart manually → link to PivotTable","Right-click data → Format Cells → Insert Chart"],ans:1},
-  // S10 Cause→Effect
   {stem:"A student refreshes the PivotTable and the PivotChart immediately updates to show new values. What is the CAUSE?",tag:"Cause→Effect",opts:["The chart is saved as an image that re-renders on refresh","PivotCharts are directly linked to their source PivotTable and reflect all changes automatically","The student must have also manually updated the chart","Excel refreshes all objects every 60 seconds automatically"],ans:1}
 ]},
 {id:3,title:"Practical 3 — Conditional Formatting",subtitle:"Highlight Trends & Key Values",labClass:"lab-3",questions:[
-  // S1 Analogy
   {stem:"Conditional formatting is like a teacher circling failing marks in red and passing marks in green on the answer sheet. In Excel, this means:",tag:"Analogy",opts:["Cells are deleted if they fall below a condition","Cell appearance (colour, font, border) changes automatically based on rules you set","The data is sorted from lowest to highest","Every cell is given a letter grade"],ans:1},
-  // S2 Witty
   {stem:"Divya manually highlighted 300 cells in red wherever marks were below 35. Her friend used Conditional Formatting and finished in 30 seconds. What did her friend apply?",tag:"Concept",opts:["She used a VLOOKUP formula","She applied a Highlight Cells Rule: Less Than 35 → Red fill","She sorted the column and coloured the bottom half","She used a macro to paint cells"],ans:1},
-  // S3 Riddle
   {stem:"I look at every cell in a range and apply a style only when a cell satisfies a condition. Remove me and the cells go back to plain white. Modify my rule and I re-apply instantly. What am I?",tag:"Riddle",opts:["A named range","A conditional formatting rule","A data validation rule","A filter"],ans:1},
-  // S4 Scenario
   {stem:"A teacher wants all attendance percentages below 75 to appear in bold red text. She selects the percentage column, goes to Conditional Formatting, and chooses:",tag:"Scenario",opts:["New Rule → Format only cells that contain → Cell Value less than 75 → Bold Red","Sort Ascending → change font colour","Insert → Comment → write 'Low Attendance'","Data → Filter → Less than 75"],ans:0},
-  // S5 Misconception
   {stem:"A student says: 'Once I apply conditional formatting, I cannot change the rule or threshold — it is permanent.' Is this correct?",tag:"Misconception",opts:["Yes — conditional formatting rules are locked after saving","Incorrect — rules can be edited, deleted, or updated anytime via Manage Rules","Correct only if the file is saved as PDF","Incorrect only for highlight rules; icon sets are permanent"],ans:1},
-  // S6 Debug
   {stem:"Rohan applied a 'Greater Than 90' rule with green fill but all cells turn green, even cells with values like 45. What went wrong?",tag:"Debug",opts:["He should have used a bar chart instead","He mistakenly entered the value as text '90' or set the condition as Less Than — not Greater Than","Excel cannot apply green to number cells","He needs to merge cells before formatting"],ans:1},
-  // S7 Application
   {stem:"A manager needs to visually scan a 500-row sales table and immediately spot the top 10 performing stores without sorting the data. The BEST tool is:",tag:"Application",opts:["Manually bold the top 10 rows","Conditional Formatting → Top/Bottom Rules → Top 10 Items","Create a separate table with LARGE function","Use AutoFilter on the sales column"],ans:1},
-  // S8 Definition
   {stem:"Which statement BEST defines Conditional Formatting?",tag:"Definition",opts:["A feature that allows you to lock cells based on their value","A formatting option that applies visual styles to cells automatically when specified conditions are met","A tool that formats entire worksheets with a single colour","A function that returns True or False based on cell content"],ans:1},
-  // S9 Sequence
   {stem:"What is the correct order to apply a 'Highlight Cells' conditional formatting rule?",tag:"Sequence",opts:["Format Cells → Conditional → Apply Range → Set Rule","Select range → Home tab → Conditional Formatting → Highlight Cells Rules → choose condition → set format → OK","Insert → Format → Highlight → Select Range → OK","Sort data → Select range → Apply colour → Done"],ans:1},
-  // S10 Cause→Effect
   {stem:"A student deletes a row of data. The conditional formatting rule previously applied to that row also disappears from Manage Rules. What is the CAUSE?",tag:"Cause→Effect",opts:["Deleting data triggers a full formatting reset","Rules are tied to cell ranges; deleting the cells removes the rule applied to that specific range","Excel automatically deletes all rules when any row is deleted","Conditional formatting cannot survive a save-and-reopen cycle"],ans:1}
 ]},
 {id:4,title:"Practical 4 — Data Bars, Colour Scales & Icon Sets",subtitle:"Visualise Data Distribution in Cells",labClass:"lab-4",questions:[
-  // S1 Analogy
   {stem:"Data Bars in Excel are like the battery indicator on your phone — the longer the bar, the more charge (or value). In Excel, Data Bars show:",tag:"Analogy",opts:["The percentage of disk space used by Excel","A proportional horizontal bar inside each cell reflecting its relative value","The number of formulas in each row","The text length of cell content"],ans:1},
-  // S2 Witty
   {stem:"Nikhil spent an hour building a column chart to visualise marks in 30 cells. His classmate used Data Bars and achieved the same visual insight inside the cells themselves in about 10 seconds. Data Bars are found under:",tag:"Concept",opts:["Insert → Charts","Home → Conditional Formatting → Data Bars","View → Freeze Panes","Formulas → Name Manager"],ans:1},
-  // S3 Riddle
   {stem:"I split a range of cells into three groups — low, middle, high — and paint them in three shades of one or two colours. I reveal the 'temperature' of your data at a glance. What am I?",tag:"Riddle",opts:["An icon set with traffic light icons","A data bar with gradient fill","A colour scale (e.g., Red–Yellow–Green)","A sparkline column chart"],ans:2},
-  // S4 Scenario
   {stem:"A teacher wants each student's marks cell to show a small ✔ (green), ➡ (yellow), or ✘ (red) icon automatically based on their score range. She should apply:",tag:"Scenario",opts:["Colour scales with three shades of green","Data bars with solid fill","Icon Sets — 3 symbols (Traffic Lights or Check/Arrow icons)","A formula with IF and nested colours"],ans:2},
-  // S5 Misconception
   {stem:"A student believes Data Bars replace the numbers in a cell and only the bar is visible. What is the truth?",tag:"Misconception",opts:["Correct — the number is hidden once a Data Bar is applied","Incorrect — the number and bar coexist in the same cell by default","Correct only when gradient fill is used","Incorrect — data bars remove the cell border, not the number"],ans:1},
-  // S6 Debug
   {stem:"Sandeep applied a Red–Green Colour Scale to exam scores. He expected low scores to be red, but every cell is green. What is the likely issue?",tag:"Debug",opts:["Excel reverses colour scales for exam data by default","He applied the Green–Red scale (green at minimum, red at maximum) instead of Red–Green — the scale is inverted","Colour scales do not work with percentage data","He needs to sort the data first"],ans:1},
-  // S7 Application
   {stem:"An HR analyst wants to visually compare employee performance ratings (1–5) across 200 employees, entirely within the spreadsheet cells without a separate chart. The BEST Conditional Formatting option is:",tag:"Application",opts:["Highlight cells rules → Between 1 and 5","Data Bars — shows relative performance as in-cell bars proportional to rating value","Format cells as bold","Use a Line sparkline for each row"],ans:1},
-  // S8 Definition
   {stem:"Which BEST describes an Icon Set in Conditional Formatting?",tag:"Definition",opts:["Small pictures inserted manually from the Icons library","A set of graphic symbols (arrows, shapes, symbols) automatically placed in cells based on value thresholds","A feature that adds 3D shapes to chart axes","A collection of cell borders shaped like icons"],ans:1},
-  // S9 Sequence
   {stem:"To apply a Colour Scale to a range, which sequence is correct?",tag:"Sequence",opts:["Select range → Home → Conditional Formatting → Colour Scales → pick a preset → applied","Insert → Data Bars → Select Range → OK","Format Cells → Fill → Gradient → Apply to Range","Sort range → Insert → Icon Set → Apply"],ans:0},
-  // S10 Cause→Effect
   {stem:"A student applies a 3-icon set to a column. After adding 5 new rows with very high values, some previously 'green' cells now show a yellow icon. What is the CAUSE?",tag:"Cause→Effect",opts:["The icon set was accidentally deleted and reapplied","Icon sets recalculate thresholds based on the entire range — adding higher values shifts the relative percentile boundaries","Excel randomly reassigns icons after data changes","The student needs to apply the icon set again for new rows"],ans:1}
 ]},
 {id:5,title:"Practical 5 — Charts",subtitle:"Column, Line & Pie from a Dataset",labClass:"lab-5",questions:[
-  // S1 Analogy
   {stem:"A pie chart is like a pizza sliced into portions — each slice represents a category's share of the whole. In Excel, a pie chart is MOST appropriate when:",tag:"Analogy",opts:["Showing how 12 months of rainfall compare to each other as separate bars","Showing how a total budget is divided among 5 departments as percentages","Plotting temperature trends over a year as a continuous line","Comparing marks of 30 students side by side"],ans:1},
-  // S2 Witty
   {stem:"Anjali used a pie chart with 15 slices to compare monthly sales. Her professor winced. The reason a pie chart with too many categories fails is:",tag:"Concept",opts:["Excel limits pie charts to 12 slices maximum","Pie charts with many thin slices become unreadable — it is hard to compare similar-sized slices accurately","Pie charts cannot display monthly data","More than 8 slices causes a runtime error in Excel"],ans:1},
-  // S3 Riddle
   {stem:"I am best used when your data tells a story over time. I connect points with a continuous line showing rise, fall, and plateaus. Marketers love me for showing growth trends. What chart am I?",tag:"Riddle",opts:["Pie chart","Clustered column chart","Line chart","Scatter plot"],ans:2},
-  // S4 Scenario
   {stem:"Rohit has quarterly sales data for 4 products across 3 years. He wants to compare sales of all products side by side for each year. The BEST chart type is:",tag:"Scenario",opts:["A pie chart — one slice per product","A line chart with a single line","A clustered column chart — groups of bars per year, one bar per product","A doughnut chart with nested rings"],ans:2},
-  // S5 Misconception
   {stem:"Many students believe the Chart Title in Excel is automatically pulled from the dataset and cannot be manually changed. What is true?",tag:"Misconception",opts:["Correct — chart titles are read-only and reflect the sheet name","Incorrect — the chart title can be clicked and edited directly; you can type any custom title","Correct only for pie charts","Incorrect only when the chart is embedded in another sheet"],ans:1},
-  // S6 Debug
   {stem:"Meena selected only the 'Sales' column (no labels) and inserted a column chart. The chart shows bars but the x-axis shows 1, 2, 3, 4 instead of month names. What should she do?",tag:"Debug",opts:["Delete the chart and use a pie chart instead","Re-select data to include both the Month labels column and the Sales column before inserting the chart","Click the chart and press F9 to refresh","Sort the data before inserting a chart"],ans:1},
-  // S7 Application
   {stem:"A student wants to show how a company's annual profit changed from 2018 to 2024, emphasising the continuous trend and growth trajectory. Which chart type is MOST appropriate?",tag:"Application",opts:["Pie chart — one slice per year","Clustered bar chart — horizontal bars per year","Line chart — continuous line connecting yearly values showing trend","3-D column chart for a dramatic visual"],ans:2},
-  // S8 Definition
   {stem:"Which is the MOST accurate description of a Column Chart?",tag:"Definition",opts:["A chart that uses horizontal bars to compare values across categories","A chart that uses vertical bars to compare values across categories or time periods","A chart that fills an area below a trend line","A circular chart showing proportional shares"],ans:1},
-  // S9 Sequence
   {stem:"What is the correct order to insert a chart in Excel?",tag:"Sequence",opts:["Insert → Chart → Select Data → OK","Select the data range → Insert tab → Charts group → choose chart type → OK","Choose chart type → Insert → Select Data → Format","Format data → Insert → Choose chart → Select range"],ans:1},
-  // S10 Cause→Effect
   {stem:"A student updates the sales figures in cells linked to a chart. The chart bars immediately show new heights. What is the CAUSE?",tag:"Cause→Effect",opts:["She pressed Ctrl+R which refreshes all objects","Charts in Excel are dynamically linked to their source data range and update automatically when values change","She must have right-clicked and selected Refresh Chart","Excel detects typing and re-renders all charts every 5 seconds"],ans:1}
 ]},
 {id:6,title:"Practical 6 — Sparklines",subtitle:"In-Cell Trend Indicators",labClass:"lab-6",questions:[
-  // S1 Analogy
   {stem:"A sparkline is like a tiny thumbnail photo on a contact card — it gives you a quick visual impression without the full detail of a gallery photo. In Excel, sparklines are:",tag:"Analogy",opts:["Full-sized charts inserted into a separate worksheet","Miniature charts that live inside a single cell, showing data trends at a glance","A type of conditional formatting that draws bars in cells","Formulas that return the text 'UP' or 'DOWN' based on trends"],ans:1},
-  // S2 Witty
   {stem:"Tanvir inserted a regular line chart for each of 20 product rows, taking 40 minutes and 20 separate chart objects. His classmate inserted sparklines in Column H for all 20 rows in under 1 minute. Sparklines achieve this because:",tag:"Concept",opts:["Sparklines use AI to generate charts faster","Sparklines are tiny charts embedded directly inside individual cells — one sparkline per row, occupying no extra space","Sparklines are pasted from a different software","Sparklines skip blank cells, making them faster to create"],ans:1},
-  // S3 Riddle
   {stem:"I am a sparkline that places small vertical bars inside a cell, one bar per data point. I am perfect for showing monthly sales volume inside a summary row. What sparkline type am I?",tag:"Riddle",opts:["Win/Loss sparkline","Line sparkline","Column sparkline","Area sparkline"],ans:2},
-  // S4 Scenario
   {stem:"A teacher has weekly quiz scores for 30 students (columns B–H) and wants to see each student's score trend in column I without inserting large charts. She should:",tag:"Scenario",opts:["Insert a regular line chart per student","Apply a colour scale from Conditional Formatting","Insert Sparklines (Line type) in column I, setting data range as B2:H2 for each row","Use TREND formula in column I"],ans:2},
-  // S5 Misconception
   {stem:"A student thinks: 'Sparklines are just tiny images and they don't update when I change the data.' What is the truth?",tag:"Misconception",opts:["Correct — sparklines are static images created at time of insertion","Incorrect — sparklines are linked to their source data range and automatically update when source values change","Correct only for Win/Loss sparklines","Incorrect only when sparklines are in merged cells"],ans:1},
-  // S6 Debug
   {stem:"Pooja inserted a Win/Loss sparkline for a range of test scores (45, 78, 92, 38, 85). She expected bars of different heights, but every bar is the same height. Why?",tag:"Debug",opts:["Win/Loss sparklines show only two states (positive win = up bar, negative/loss = down bar) — not proportional heights; she should use a Column sparkline for proportional bars","Win/Loss sparklines are broken in Excel 2019","She selected the wrong range","The data must be sorted for Win/Loss sparklines to work"],ans:0},
-  // S7 Application
   {stem:"A dashboard designer needs to show 12-month revenue trends for 50 products in a compact table. Each product gets one row. The trend visual must fit within its cell. The BEST tool is:",tag:"Application",opts:["50 separate line charts placed over the table","Sparklines (Line) in one column — one sparkline per product row, showing 12-month trend compactly","A single large line chart with 50 overlapping lines","Colour scales applied to the 12 monthly columns"],ans:1},
-  // S8 Definition
   {stem:"Which statement MOST accurately defines a Sparkline in Excel?",tag:"Definition",opts:["A type of chart pasted as a linked image from another application","A full-featured chart stored on a separate chart sheet","A miniature chart embedded in a single cell that provides a quick visual summary of data trends","A macro-generated graph that updates on button click"],ans:2},
-  // S9 Sequence
   {stem:"What is the correct sequence to insert sparklines into a column?",tag:"Sequence",opts:["Insert tab → Sparklines group → choose type (Line/Column/Win-Loss) → set Data Range and Location Range → OK","Select chart type → Insert Sparkline → Format → Apply","Home → Conditional Formatting → Sparkline → Choose Range","Format cells → Insert → Sparklines → Data Range → Sort"],ans:0},
-  // S10 Cause→Effect
   {stem:"A student deletes the cells that contained the sparklines. An error message says 'Location range is no longer valid.' What is the CAUSE?",tag:"Cause→Effect",opts:["Sparklines require the source data to be deleted first","Sparklines are tied to their location cells — deleting those cells removes the sparkline's display location, causing Excel to flag the reference as invalid","Excel prevents deletion of any cell containing conditional formatting","The sparkline data range must be cleared before the location cells"],ans:1}
 ]}
 ];
