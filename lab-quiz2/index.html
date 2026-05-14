@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Practicals Quiz — MS Excel · Batch 2 | K.P. Singh · SRHU</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{
+  --bg:#fdf8f2;--surface:#ffffff;--surface2:#fef9f4;--surface3:#fff4ea;
+  --gold:#c8860a;--gold-bright:#e8a020;--gold-pale:#fff3d6;
+  --gold-dim:rgba(200,134,10,.10);--gold-border:rgba(200,134,10,.28);
+  --teal:#0d7377;--teal-dim:rgba(13,115,119,.10);--teal-bright:#14a7ac;
+  --rose:#c0392b;--rose-dim:rgba(192,57,43,.10);
+  --border:rgba(200,134,10,.22);--border-soft:rgba(0,0,0,.07);
+  --text:#1a1208;--muted:rgba(26,18,8,.50);--mint:#0e7c4a;--red:#c0392b;
+  --shadow:rgba(200,134,10,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 55% 40% at 95% 5%,rgba(200,134,10,.06),transparent),
+  radial-gradient(ellipse 40% 50% at 5% 95%,rgba(13,115,119,.05),transparent);}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:repeating-linear-gradient(45deg,rgba(200,134,10,.025) 0,rgba(200,134,10,.025) 1px,transparent 0,transparent 50%);
+  background-size:28px 28px;}
+
+.kps-nav{position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:11px 24px;background:rgba(253,248,242,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);box-shadow:0 2px 20px var(--shadow);}
+.kps-nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.kps-nav-logo{width:33px;height:33px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);box-shadow:0 0 10px rgba(200,134,10,.3);}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--gold);line-height:1;}
+.brand-sub{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:2px;}
+.kps-nav-links{display:flex;align-items:center;gap:6px}
+.kps-nav-links a{color:var(--muted);text-decoration:none;font-family:'Fira Code',monospace;font-size:10px;letter-spacing:.6px;padding:5px 12px;border-radius:8px;border:1px solid transparent;transition:all .2s;white-space:nowrap;}
+.kps-nav-links a:hover{color:var(--gold);border-color:var(--border);background:var(--gold-dim)}
+.kps-nav-links a.ext{background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:#fff;font-weight:600;border:none;box-shadow:0 2px 12px rgba(200,134,10,.3);}
+
+.screen{display:none;position:relative;z-index:1}
+.screen.active{display:block}
+
+#reg-screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:90px 20px 40px;flex-direction:column;}
+#reg-screen.active{display:flex}
+
+.reg-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:38px 34px;width:100%;max-width:500px;position:relative;overflow:hidden;box-shadow:0 20px 70px var(--shadow),0 0 0 1px rgba(200,134,10,.05) inset;}
+.reg-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(200,134,10,.07),transparent 70%);}
+.reg-card::after{content:'';position:absolute;bottom:-50px;left:-50px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(13,115,119,.06),transparent 70%);}
+
+.reg-badge{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(13,115,119,.25);padding:4px 14px;border-radius:20px;display:inline-block;margin-bottom:16px;}
+.reg-title{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:var(--text);line-height:1.1;margin-bottom:5px;}
+.reg-title span{color:var(--gold);font-style:italic}
+.reg-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.65}
+.batch-badge{display:inline-block;background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.25);border-radius:20px;padding:3px 12px;font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2px;color:var(--red);margin-bottom:10px;}
+
+.topics-box{background:var(--gold-pale);border:1px solid rgba(200,134,10,.2);border-radius:12px;padding:14px 16px;margin-bottom:24px;}
+.topics-title{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.topics-box ol{padding-left:18px}
+.topics-box li{font-size:12px;color:var(--muted);line-height:1.8}
+
+.form-group{margin-bottom:15px}
+.form-label{font-family:'Fira Code',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px;}
+.form-input,.form-select{width:100%;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border-soft);border-radius:10px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;appearance:none;-webkit-appearance:none;}
+.form-input:focus,.form-select:focus{border-color:var(--gold);background:#fffbf2;box-shadow:0 0 0 3px rgba(200,134,10,.1);}
+.form-input::placeholder{color:var(--muted)}
+.form-select option{background:#fff;color:var(--text)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-fixed{display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(0,0,0,.03);border:1.5px solid rgba(0,0,0,.05);border-radius:10px;color:var(--muted);font-size:14px;}
+.form-fixed .lock{font-size:12px;color:var(--gold);opacity:.7}
+
+.start-btn{width:100%;margin-top:26px;padding:15px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-bright) 50%,#f0c040 100%);background-size:200% 100%;color:#fff;border-radius:12px;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;letter-spacing:.5px;transition:all .4s;box-shadow:0 4px 24px rgba(200,134,10,.35);text-shadow:0 1px 2px rgba(0,0,0,.2);}
+.start-btn:hover{background-position:right center;transform:translateY(-2px);box-shadow:0 8px 36px rgba(200,134,10,.5);}
+.form-error{color:var(--red);font-size:12px;margin-top:14px;text-align:center;display:none;font-family:'Fira Code',monospace;}
+
+#quiz-screen{padding-top:130px;padding-bottom:60px}
+.quiz-header{position:fixed;top:58px;left:0;right:0;z-index:900;background:rgba(253,248,242,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:10px 20px;box-shadow:0 2px 16px var(--shadow);}
+.quiz-header-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.qh-student{font-family:'Fira Code',monospace;font-size:11px;color:var(--gold);letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+.qh-progress-wrap{flex:1}
+.qh-progress-label{display:flex;justify-content:space-between;font-family:'Fira Code',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;letter-spacing:.5px;}
+.qh-progress-bar{height:4px;background:rgba(0,0,0,.08);border-radius:4px;overflow:hidden;}
+.qh-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--teal-bright));border-radius:4px;transition:width .4s ease;}
+.timer-box{display:flex;align-items:center;gap:6px;background:var(--gold-pale);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-family:'Fira Code',monospace;font-size:13px;font-weight:600;color:var(--gold);white-space:nowrap;}
+.timer-box.warning{background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.4);color:var(--red);}
+.review-mode-label{display:none;font-family:'Fira Code',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);}
+.review-back-btn{display:none;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal);border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.review-back-btn:hover{background:rgba(13,115,119,.18)}
+
+.quiz-content{max-width:900px;margin:0 auto;padding:0 16px}
+
+.section-divider{margin:32px 0 18px;display:flex;align-items:center;gap:14px}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border))}
+.sec-line.right{background:linear-gradient(270deg,transparent,var(--border))}
+.sec-badge{font-family:'Cormorant Garamond',serif;font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--gold);background:var(--gold-pale);border:1px solid var(--border);padding:7px 18px;border-radius:20px;white-space:nowrap;text-align:center;box-shadow:0 2px 8px var(--shadow);}
+.sec-badge small{display:block;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:1px;color:var(--muted);margin-top:2px;text-transform:uppercase;font-weight:400;}
+
+.lab-1 .sec-badge,.lab-1 .q-tag{--tag-color:#0d7377;--tag-bg:rgba(13,115,119,.08);--tag-border:rgba(13,115,119,.2)}
+.lab-2 .sec-badge,.lab-2 .q-tag{--tag-color:#7c3d8f;--tag-bg:rgba(124,61,143,.08);--tag-border:rgba(124,61,143,.2)}
+.lab-3 .sec-badge,.lab-3 .q-tag{--tag-color:#c0392b;--tag-bg:rgba(192,57,43,.08);--tag-border:rgba(192,57,43,.2)}
+.lab-4 .sec-badge,.lab-4 .q-tag{--tag-color:#1a6e2e;--tag-bg:rgba(26,110,46,.08);--tag-border:rgba(26,110,46,.2)}
+.lab-5 .sec-badge,.lab-5 .q-tag{--tag-color:#c8860a;--tag-bg:rgba(200,134,10,.08);--tag-border:rgba(200,134,10,.2)}
+.lab-6 .sec-badge,.lab-6 .q-tag{--tag-color:#1565c0;--tag-bg:rgba(21,101,192,.08);--tag-border:rgba(21,101,192,.2)}
+
+.q-card{background:var(--surface);border:1.5px solid var(--border-soft);border-radius:14px;padding:22px 20px;margin-bottom:12px;transition:border-color .25s,box-shadow .25s;box-shadow:0 2px 10px rgba(0,0,0,.04);}
+.q-card:hover{border-color:var(--border);box-shadow:0 4px 20px var(--shadow)}
+.q-card.answered{border-color:rgba(200,134,10,.4);box-shadow:0 2px 14px rgba(200,134,10,.1);}
+.q-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+.q-num{min-width:32px;height:32px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border-soft);display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:11px;font-weight:600;color:var(--muted);flex-shrink:0;margin-top:2px;transition:all .2s;}
+.q-num.done{background:var(--gold-pale);border-color:var(--gold);color:var(--gold);}
+.q-stem{font-size:14.5px;line-height:1.72;color:var(--text);font-weight:400}
+.q-tag{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:.8px;color:var(--tag-color,var(--teal));background:var(--tag-bg,var(--teal-dim));border:1px solid var(--tag-border,rgba(13,115,119,.2));padding:2px 10px;border-radius:10px;white-space:nowrap;margin-bottom:12px;display:inline-block;}
+.options-grid{display:flex;flex-direction:column;gap:7px}
+.opt-btn{width:100%;text-align:left;display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1.5px solid var(--border-soft);border-radius:10px;padding:11px 14px;cursor:pointer;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;line-height:1.55;transition:all .18s;-webkit-tap-highlight-color:transparent;}
+.opt-btn:hover:not(:disabled){background:var(--gold-pale);border-color:rgba(200,134,10,.35);transform:translateX(2px);}
+.opt-btn:disabled{cursor:default}
+.opt-btn.selected{background:var(--gold-pale);border-color:var(--gold);box-shadow:0 2px 10px rgba(200,134,10,.12);}
+.opt-letter{min-width:25px;height:25px;border-radius:50%;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:11px;font-weight:600;color:var(--muted);flex-shrink:0;margin-top:1px;transition:all .18s;}
+.opt-btn.selected .opt-letter{background:var(--gold);border-color:var(--gold);color:#fff;box-shadow:0 2px 8px rgba(200,134,10,.4);}
+
+.submit-section{max-width:900px;margin:28px auto 0;padding:0 16px 40px;text-align:center;}
+.unanswered-warn{background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--red);font-family:'Fira Code',monospace;display:none;}
+.submit-btn{padding:15px 52px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--gold-bright),#f0c040);background-size:200% 100%;color:#fff;border-radius:50px;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;letter-spacing:.5px;transition:all .4s;box-shadow:0 4px 24px rgba(200,134,10,.35);text-shadow:0 1px 2px rgba(0,0,0,.2);}
+.submit-btn:hover{background-position:right center;transform:translateY(-2px);box-shadow:0 8px 36px rgba(200,134,10,.5);}
+
+#result-screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:100px 16px 60px;flex-direction:column;}
+#result-screen.active{display:flex}
+
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:34px 28px;width:100%;max-width:620px;position:relative;overflow:hidden;box-shadow:0 20px 70px var(--shadow),0 0 0 1px rgba(200,134,10,.05) inset;}
+.result-card::before{content:'';position:absolute;top:-80px;right:-80px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(200,134,10,.07),transparent 70%);}
+
+.result-header{text-align:center;margin-bottom:24px}
+.result-emoji{font-size:50px;display:block;margin-bottom:10px}
+.result-grade{font-family:'Cormorant Garamond',serif;font-size:68px;font-weight:700;color:var(--gold);line-height:1;margin-bottom:4px;}
+.result-score-label{font-family:'Fira Code',monospace;font-size:13px;color:var(--muted);letter-spacing:1px;}
+.result-verdict{font-family:'Cormorant Garamond',serif;font-size:15px;margin-top:8px;letter-spacing:.5px;font-style:italic;}
+.verdict-pass{color:var(--mint)}.verdict-fail{color:var(--red)}
+
+.result-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:20px 0}
+.result-info-item{background:var(--surface2);border:1px solid var(--border-soft);border-radius:12px;padding:11px 13px;}
+.ri-label{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.ri-val{font-size:13px;color:var(--text);font-weight:600;word-break:break-word;}
+
+.section-breakdown{margin-top:20px}
+.sb-title{font-family:'Fira Code',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px;}
+.sb-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sb-name{flex:1;color:var(--muted);font-size:11px}
+.sb-score{font-family:'Fira Code',monospace;color:var(--gold);min-width:36px;text-align:right;font-size:12px;}
+.sb-bar-wrap{width:70px;height:4px;background:rgba(0,0,0,.07);border-radius:5px;overflow:hidden}
+.sb-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),var(--teal-bright));}
+
+.result-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.action-btn{flex:1;min-width:110px;padding:12px 8px;border:none;cursor:pointer;border-radius:11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.3px;transition:all .25s;}
+.action-primary{background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:#fff;box-shadow:0 4px 16px rgba(200,134,10,.3);text-shadow:0 1px 2px rgba(0,0,0,.15);}
+.action-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,134,10,.45)}
+.action-secondary{background:var(--gold-pale);border:1px solid var(--border);color:var(--gold);}
+.action-secondary:hover{background:#ffedb0}
+
+.sub-id-box{margin-top:20px;padding:16px;background:var(--surface2);border:1px dashed rgba(200,134,10,.35);border-radius:12px;text-align:center;}
+.sub-id-label{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.sub-id-value{font-family:'Fira Code',monospace;font-size:13px;font-weight:600;color:var(--gold);letter-spacing:1.5px;word-break:break-all;}
+.sub-id-hint{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic}
+
+.status-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold-pale);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-family:'Fira Code',monospace;font-size:10px;color:var(--gold);margin-top:10px;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--gold-bright);animation:pulse 1.2s ease infinite;}
+.pdf-notice{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-family:'Fira Code',monospace;font-size:10px;color:var(--teal);background:rgba(13,115,119,.07);border:1px solid rgba(13,115,119,.2);border-radius:20px;padding:4px 12px;}
+
+@media print{.kps-nav,.quiz-header,.result-actions,.timer-box,.sub-id-hint,.status-badge{display:none!important}body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.result-card{border:2px solid #c8860a;box-shadow:none;page-break-inside:avoid}#result-screen{padding:20px!important;align-items:flex-start!important}}
+@media(max-width:520px){.kps-nav-links a.hide-mobile{display:none}.qh-student{max-width:80px}.timer-box{font-size:11px;padding:4px 8px}.result-info-grid{grid-template-columns:1fr 1fr}.form-row{grid-template-columns:1fr}.q-stem{font-size:13.5px}.opt-btn{font-size:13px;padding:10px 12px}.reg-card{padding:26px 18px}}
+</style>
+</head>
+<body>
+
+<nav class="kps-nav">
+  <a href="/datascience_sem1/" class="kps-nav-brand">
+    <img src="../../KP_Singh.png" onerror="this.style.display='none'" alt="KP" class="kps-nav-logo">
+    <div>
+      <div class="brand-name">K.P. Singh</div>
+      <div class="brand-sub">SRHU · BCA Lab</div>
+    </div>
+  </a>
+  <div class="kps-nav-links">
+    <a href="#" class="hide-mobile">← Lab Notes</a>
+    <a href="https://kpsingh.in" target="_blank" rel="noopener" class="ext">kpsingh.in ↗</a>
+  </div>
+</nav>
+
+<!-- REGISTRATION -->
+<div id="reg-screen" class="screen active">
+  <div class="reg-card">
+    <div class="batch-badge">BATCH 2 · FRESH SET</div>
+    <div class="reg-badge">MS Excel Lab · BCA 2nd Sem</div>
+    <h1 class="reg-title">Lab <span>Practicals</span> Quiz</h1>
+    <p class="reg-sub">70 MCQ questions · 22 minutes · 6 Lab Practicals<br>Result PDF downloads automatically on submission.</p>
+    <div class="topics-box">
+      <div class="topics-title">Practicals Covered</div>
+      <ol>
+        <li>PivotTable — summarise &amp; analyse data</li>
+        <li>PivotChart — create &amp; customise from PivotTable</li>
+        <li>Conditional Formatting — highlight trends &amp; values</li>
+        <li>Data Bars, Colour Scales &amp; Icon Sets</li>
+        <li>Charts — Column, Line &amp; Pie</li>
+        <li>Sparklines — show trends in cells</li>
+      </ol>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="inp-name">Full Name</label>
+      <input class="form-input" id="inp-name" type="text" placeholder="e.g. Riya Verma" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="inp-roll">Roll Number</label>
+      <input class="form-input" id="inp-roll" type="text" placeholder="e.g. DD121BCA001" autocomplete="off" style="text-transform:uppercase">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="inp-section">Section</label>
+        <select class="form-select" id="inp-section">
+          <option value="">Select…</option>
+          <option value="C1">C1</option>
+          <option value="C2">C2</option>
+          <option value="B1">B1</option>
+          <option value="B2">B2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Branch</label>
+        <div class="form-fixed"><span class="lock">🔒</span> BCA</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Semester</label>
+      <div class="form-fixed"><span class="lock">🔒</span> 1st Semester</div>
+    </div>
+    <div class="form-error" id="form-error">Please fill in all required fields.</div>
+    <button class="start-btn" onclick="startQuiz()">Start Quiz →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-header-inner">
+      <div class="qh-student" id="qh-name">—</div>
+      <div class="qh-progress-wrap" id="qh-progress-wrap">
+        <div class="qh-progress-label"><span id="prog-answered">0 answered</span><span>70 questions</span></div>
+        <div class="qh-progress-bar"><div class="qh-progress-fill" id="prog-fill"></div></div>
+      </div>
+      <div class="timer-box" id="timer-box">⏱ <span id="timer-display">22:00</span></div>
+      <span class="review-mode-label" id="review-mode-label">📋 REVIEW MODE</span>
+      <button class="review-back-btn" id="review-back-btn" onclick="backToResults()">← Back to Score</button>
+    </div>
+  </div>
+  <div class="quiz-content" id="quiz-content"></div>
+  <div class="submit-section" id="submit-section">
+    <div class="unanswered-warn" id="unanswered-warn"></div>
+    <button class="submit-btn" onclick="submitQuiz()">Submit Quiz ✓</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="result-screen" class="screen">
+  <div class="result-card" id="result-card-el">
+    <div class="result-header">
+      <span class="result-emoji" id="res-emoji">🎓</span>
+      <div class="result-grade" id="res-grade">—</div>
+      <div class="result-score-label" id="res-score-label">— / 70</div>
+      <div class="result-verdict" id="res-verdict"></div>
+      <div id="res-sending" style="display:none"><span class="status-badge"><span class="pulse-dot"></span> Saving to records…</span></div>
+      <div id="pdf-saving" style="display:none"><span class="status-badge"><span class="pulse-dot"></span> Downloading PDF…</span></div>
+      <div id="pdf-done" style="display:none"><span class="pdf-notice">✓ PDF saved to your device</span></div>
+    </div>
+    <div class="result-info-grid" id="res-info-grid"></div>
+    <div class="section-breakdown">
+      <div class="sb-title">Score by Practical</div>
+      <div id="res-breakdown"></div>
+    </div>
+    <div class="result-actions">
+      <button class="action-btn action-primary" onclick="manualSavePDF()">⬇ Save PDF</button>
+      <button class="action-btn action-secondary" onclick="reviewQuiz()">Review Answers</button>
+    </div>
+    <div class="sub-id-box">
+      <div class="sub-id-label">Submission ID — Show to faculty</div>
+      <div class="sub-id-value" id="sub-id-value">—</div>
+      <div class="sub-id-hint">Show this screen or the PDF to K.P. Singh sir for attendance.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzh4RwGr5CKBpKzajAVXhBbgK0PZZigRFUtaq3eGi3EUvARwyXK1dThuW3M3w6dLARNKg/exec';
+
+/* ───────────────────────────────────────────────
+   70 QUESTIONS  ·  Batch 2  ·  All-new questions
+   Sections: 12 / 12 / 12 / 12 / 12 / 10  = 70
+─────────────────────────────────────────────── */
+const sections = [
+{id:1,title:"Practical 1 — PivotTable",subtitle:"Summarise & Analyse Data",labClass:"lab-1",questions:[
+  {stem:"Kavya has sales data with 8,000 rows and needs the total revenue for each city. She drags 'City' to the Rows area and 'Revenue' to the Values area in a PivotTable. What does Excel display?",tag:"Application",opts:["One row per individual transaction","A chart showing revenue over time","One row per unique city with the sum of revenue for that city","A filtered list of the top 5 cities"],ans:2},
+  {stem:"A PivotTable is rebuilt from scratch every time you move a field between areas. True or False?",tag:"Concept",opts:["True — it deletes and recreates all calculations","False — Excel recalculates on the fly as you drag fields; the underlying data is never touched","True only when more than 1000 rows are involved","False — only the chart updates; the table stays the same"],ans:1},
+  {stem:"In a PivotTable, the 'Grand Total' row at the bottom represents:",tag:"Definition",opts:["The average of all values in the dataset","The total of all subtotals shown in the table, summarising the entire data set","A manually entered formula you must type","The count of rows in the source table"],ans:1},
+  {stem:"Preethi's PivotTable shows Count of Sales instead of Sum of Sales. Where does she change this?",tag:"Debug",opts:["She must delete the PivotTable and start over","She right-clicks the value field → Value Field Settings → change Summarise by to Sum","She needs to sort the data column first","She changes it in Format Cells → Number"],ans:1},
+  {stem:"You drag the same field (e.g., 'Amount') to the Values area twice. What useful thing can you achieve?",tag:"Advanced",opts:["Nothing — Excel will ignore the duplicate","You can show Sum in one column and Count or Average in the other simultaneously","It causes an error and crashes the PivotTable","Excel automatically merges both into one column"],ans:1},
+  {stem:"Which keyboard shortcut refreshes a PivotTable after source data changes?",tag:"Shortcut",opts:["Ctrl + Z","Alt + F5","Ctrl + Shift + L","F2"],ans:1},
+  {stem:"A student places 'Month' in the Columns area and 'Product' in the Rows area. The resulting PivotTable layout will look like:",tag:"Scenario",opts:["A single column listing every transaction","A matrix: products on the left, months across the top, values at intersections","A pie chart of products","A list sorted alphabetically by month"],ans:1},
+  {stem:"The 'Slicers' feature in PivotTables is used to:",tag:"Feature",opts:["Cut cells from the worksheet","Provide a visual, clickable filter panel that filters the PivotTable interactively","Split the PivotTable into multiple sheets","Remove duplicate rows from source data"],ans:1},
+  {stem:"What happens to a PivotTable if you delete its source data sheet?",tag:"Cause→Effect",opts:["Nothing — the PivotTable stores its own copy of the data","The PivotTable displays a warning and loses its data connection, showing '#REF!' or becoming invalid","The PivotTable converts to a static table automatically","Excel asks you to reconnect to a new data source immediately"],ans:1},
+  {stem:"Ravi notices his PivotTable shows blank items in the Row labels. The MOST likely cause is:",tag:"Debug",opts:["He needs to sort the data A–Z","There are blank cells in the source column that is used as a Row field","The PivotTable range is too small","Blank items appear only when using Count as the summary function"],ans:1},
+  {stem:"Which of the following is NOT a valid PivotTable area?",tag:"Definition",opts:["Rows","Values","Columns","Formula Bar"],ans:3},
+  {stem:"A PivotTable is created from a table of 500 employee records. After applying a filter to show only 'Department = HR', the Grand Total shows the sum for:",tag:"Concept",opts:["All 500 employees regardless of the filter","Only the visible HR department rows — the Grand Total respects active filters","The last 10 rows of the table","No rows — Grand Total is hidden when a filter is active"],ans:1}
+]},
+{id:2,title:"Practical 2 — PivotChart",subtitle:"Create & Customise from PivotTable",labClass:"lab-2",questions:[
+  {stem:"Divya wants a chart that automatically filters when she changes the Region slicer on her PivotTable. Which chart type provides this behaviour?",tag:"Application",opts:["A regular column chart","A PivotChart linked to the PivotTable","A SmartArt graphic","A scatter plot with manual data entry"],ans:1},
+  {stem:"When you move a PivotChart to a new sheet using 'Move Chart', the connection to the PivotTable:",tag:"Concept",opts:["Is broken permanently","Remains intact — the PivotChart stays linked to the source PivotTable regardless of location","Is replaced by static values","Requires manual re-linking after moving"],ans:1},
+  {stem:"The field buttons visible on a PivotChart allow the user to:",tag:"Feature",opts:["Resize the chart by clicking them","Change the chart title font","Filter the data displayed directly on the chart without going to the PivotTable","Print the chart"],ans:2},
+  {stem:"Suresh wants to hide the field buttons on his PivotChart for a cleaner look. He should:",tag:"Scenario",opts:["Delete the chart and recreate it without buttons","Right-click a field button → Hide All Field Buttons on Chart (or use PivotChart Analyze → Field Buttons → Hide All)","Format the chart area to white to camouflage buttons","Field buttons cannot be hidden"],ans:1},
+  {stem:"A student changes the chart type of a PivotChart from Column to Line. Does the linked PivotTable change?",tag:"Misconception",opts:["Yes — the PivotTable recalculates for line chart requirements","No — changing the chart type only affects the visual representation; the PivotTable data remains unchanged","Yes — line charts require the PivotTable to be transposed","No — but the PivotChart loses its link to the PivotTable"],ans:1},
+  {stem:"Which tab appears in the Ribbon ONLY when a PivotChart is selected?",tag:"UI",opts:["Page Layout","PivotChart Analyze (or PivotChart Tools)","Formulas","Developer"],ans:1},
+  {stem:"Meera's PivotChart title shows 'Chart Title' instead of something meaningful. To rename it, she should:",tag:"Debug",opts:["Delete and reinsert the chart with the correct name","Double-click the chart title text and type the desired title directly","Change the PivotTable name — the chart title updates automatically","Use File → Properties → Chart Name"],ans:1},
+  {stem:"If you add a new data field to the PivotTable after creating a PivotChart, what happens to the chart?",tag:"Cause→Effect",opts:["The chart freezes and must be manually refreshed","The PivotChart automatically updates to reflect the new field if it is placed in the Values area","The chart is deleted and must be recreated","A second chart is created automatically for the new field"],ans:1},
+  {stem:"Which is the BEST chart type in a PivotChart to compare totals across multiple categories for a single time period?",tag:"Choice",opts:["Pie chart","Line chart","Clustered Column chart","Scatter plot"],ans:2},
+  {stem:"A PivotChart can be created from data that has NOT been organised into a PivotTable first. How?",tag:"Concept",opts:["It cannot — a PivotChart always requires a PivotTable first","Select raw data → Insert → PivotChart — Excel creates both a PivotTable and PivotChart simultaneously","Select raw data → Insert → Chart → choose PivotChart option","PivotCharts are only created from existing charts"],ans:1},
+  {stem:"Nandini applies a filter on the PivotTable to exclude one product. The PivotChart still shows that product. What should she check?",tag:"Debug",opts:["The chart must be on the same sheet as the PivotTable","The PivotChart may be connected to a different PivotTable; she should verify the chart's data source","She needs to delete the chart series manually","PivotCharts cannot respond to filters — this is expected"],ans:1},
+  {stem:"What is the primary advantage of a PivotChart over a regular chart for business reporting?",tag:"Definition",opts:["PivotCharts have more colour themes","PivotCharts can be emailed directly from Excel","PivotCharts dynamically update with filters and field changes, eliminating the need to recreate charts when data scope changes","PivotCharts render 3 times faster than regular charts"],ans:2}
+]},
+{id:3,title:"Practical 3 — Conditional Formatting",subtitle:"Highlight Trends & Key Values",labClass:"lab-3",questions:[
+  {stem:"A student wants all cells in column B that contain the word 'FAIL' to turn red automatically. She should use:",tag:"Application",opts:["Find & Replace → Replace with red font","Conditional Formatting → Highlight Cells Rules → Text that Contains → 'FAIL' → Red fill","Format Cells → Font → Red","Data → Filter → Text Filter → 'FAIL'"],ans:1},
+  {stem:"Conditional Formatting rules are evaluated in what order when multiple rules apply to the same cell?",tag:"Concept",opts:["Alphabetically by rule name","In the order they are listed in Manage Rules — the rule at the top has the highest priority","All rules apply simultaneously with no priority","The last rule created always wins"],ans:1},
+  {stem:"Which Conditional Formatting rule type highlights the top 5 values in a selected range?",tag:"Feature",opts:["Highlight Cells Rules → Greater Than","Top/Bottom Rules → Top 10 Items (set to 5)","New Rule → Formula","Data Bars with threshold"],ans:1},
+  {stem:"Smita's conditional formatting rule uses the formula =B2>100. She applied it to range B2:B50. What does this achieve?",tag:"Scenario",opts:["Only cell B2 gets highlighted","Every cell in B2:B50 is highlighted if its own value exceeds 100, because the formula uses a relative reference","Every cell turns red because the formula references only B2","The rule fails because formulas cannot be used in conditional formatting"],ans:1},
+  {stem:"When you copy a cell with conditional formatting using Ctrl+C → Ctrl+V to another location, what happens to the formatting rule?",tag:"Concept",opts:["The formatting rule is not copied — only the cell value is pasted","The rule is copied along with the cell, and the rule's range expands to include the new cell location","The rule is copied but applies permanently without conditions","Conditional formatting cannot be copied"],ans:1},
+  {stem:"Which option lets you copy ONLY the conditional formatting from one cell to many others without changing their values?",tag:"Technique",opts:["Ctrl+D (Fill Down)","Format Painter (Home → Format Painter), click and drag over the target range","Right-click → Paste Special → Values","Edit → Copy → Paste Link"],ans:1},
+  {stem:"Ananya wants to highlight an entire row (columns A–F) when column C contains the value 'Overdue'. The correct formula for a New Rule is:",tag:"Advanced",opts:["=C1='Overdue'","=$C1='Overdue' — using an absolute column reference so Excel checks column C for every row","=C:C='Overdue'","=AND(A1:F1,'Overdue')"],ans:1},
+  {stem:"A manager wants the bottom 20% of sales figures highlighted in orange. The correct Conditional Formatting rule is:",tag:"Application",opts:["Highlight Cells Rules → Less Than → type a number manually","Top/Bottom Rules → Bottom 10% → set to 20 → choose orange fill","Data Bars → Bottom fill","New Rule → Format only cells above average"],ans:1},
+  {stem:"Sachin applied 'Above Average' conditional formatting to a column of test scores. He later adds 10 very high scores. Some previously highlighted cells are no longer highlighted. Why?",tag:"Cause→Effect",opts:["Conditional formatting does not update after data is added","The average increased due to the new high scores, so some previously above-average cells are now at or below the new average","Excel randomly reassigns 'above average' to only 50% of eligible cells","The rule was accidentally deleted"],ans:1},
+  {stem:"Which feature in Conditional Formatting lets you apply different formats based on whether a cell's value equals another specific cell's value?",tag:"Feature",opts:["Only Data Bars support cell references","New Rule → Format only cells that contain → Cell Value → equal to → click the reference cell","Colour Scales → Custom","Highlight Cells Rules → Equal To → type in the reference"],ans:1},
+  {stem:"Deepa accidentally created 15 duplicate conditional formatting rules on one range. To remove all rules at once from the selected cells, she should:",tag:"Debug",opts:["Press Delete on the keyboard","Conditional Formatting → Clear Rules → Clear Rules from Selected Cells","Format Cells → Clear → All","Undo 15 times using Ctrl+Z"],ans:1},
+  {stem:"The 'Stop If True' checkbox in Manage Rules does what?",tag:"Definition",opts:["Stops Excel from saving the workbook if the rule evaluates to True","Prevents lower-priority rules from being applied to a cell once a higher-priority rule's condition is True","Stops the cell from being edited after formatting is applied","Removes the rule automatically when the condition becomes True"],ans:1}
+]},
+{id:4,title:"Practical 4 — Data Bars, Colour Scales & Icon Sets",subtitle:"Visualise Data Distribution in Cells",labClass:"lab-4",questions:[
+  {stem:"What differentiates a Gradient Fill Data Bar from a Solid Fill Data Bar in Conditional Formatting?",tag:"Definition",opts:["Gradient fill is always blue; solid fill is always green","Gradient fill fades from a colour to transparent toward the right; solid fill uses a uniform colour throughout the bar","Gradient fill requires a secondary axis; solid fill does not","Solid fill bars update every 5 seconds; gradient fill is static"],ans:1},
+  {stem:"Lokesh applied Data Bars to a column containing both positive and negative numbers. How does Excel handle negative Data Bars by default?",tag:"Concept",opts:["Negative values are ignored and show no bar","Negative bars extend to the left of a central axis line, while positive bars extend to the right","All bars are shown as positive regardless of sign","Data Bars cannot be applied to columns with negative numbers"],ans:1},
+  {stem:"A Colour Scale with three colours (Red–Yellow–Green) assigns colours based on:",tag:"Definition",opts:["The alphabetical order of cell content","The relative position of each cell's value within the range — lowest values get one colour, midpoint another, highest another","Fixed absolute thresholds that you must enter manually","The font colour of the cells"],ans:1},
+  {stem:"Priya wants the HIGHEST values in her sales column to appear red and the LOWEST to appear green (to flag over-budget items). She should apply:",tag:"Scenario",opts:["A standard Green–Yellow–Red colour scale","A Red–Yellow–Green colour scale reversed, OR a Green–Yellow–Red scale with min and max colours swapped","Data Bars with solid red fill","Icon sets with red arrows for high values"],ans:1},
+  {stem:"An icon set with 5 icons divides data into how many bands by default?",tag:"Concept",opts:["3 equal bands","4 equal bands","5 equal bands based on percentile thresholds","10 equal bands"],ans:2},
+  {stem:"Vikas wants the icon thresholds in his Icon Set to be based on absolute numbers (e.g., ≥ 80 = green, 50–79 = yellow, < 50 = red) rather than percentages. How?",tag:"Advanced",opts:["He cannot — icon sets always use percentile thresholds","Edit the Icon Set rule → change the Type dropdown from 'Percent' to 'Number' → enter the fixed values","Sort the data first so percentiles match the numbers","Use a formula-based rule instead of icon sets"],ans:1},
+  {stem:"Which of the following scenarios is Data Bars LEAST suitable for?",tag:"Application",opts:["Comparing monthly sales figures across one column","Showing relative employee performance ratings","Visualising text categories like 'High', 'Medium', 'Low' (stored as text strings)","Showing percentage completion of tasks stored as numbers"],ans:2},
+  {stem:"Rashmi notices that one very large outlier value causes all other Data Bars to appear extremely short and nearly invisible. What is the BEST fix?",tag:"Debug",opts:["Delete the outlier row","In the Data Bar rule settings, change 'Maximum' from 'Automatic' to a fixed 'Number' value that better represents the typical maximum","Apply solid fill instead of gradient fill","Change the column width"],ans:1},
+  {stem:"A Colour Scale was applied to B2:B20. A student then inserts a new row inside this range and enters a value. The Colour Scale:",tag:"Cause→Effect",opts:["Does not apply to newly inserted rows","Automatically expands to include the new row and recalculates colours for the entire range","Applies only to the new row and resets the others to white","Throws an error because the range changed"],ans:1},
+  {stem:"What does it mean when a Data Bar has a bar length of zero (no bar visible) in a cell?",tag:"Concept",opts:["The cell is empty or the value equals the minimum value in the range","The Data Bar rule was accidentally deleted for that cell","The cell value is text","Zero-length bars appear only in Solid Fill mode"],ans:0},
+  {stem:"Icon Sets, Data Bars, and Colour Scales are all found under which Excel menu?",tag:"Navigation",opts:["Insert → Illustrations","Home → Conditional Formatting","View → Show","Page Layout → Themes"],ans:1},
+  {stem:"A student copies a range with a Colour Scale and pastes it to a different sheet using Paste Special → Values Only. What happens to the colours?",tag:"Concept",opts:["The colours are pasted permanently as static background colours","Only the cell values are pasted; the conditional formatting rules (including the Colour Scale) are NOT transferred","The Colour Scale recalibrates to the new sheet's range automatically","The paste operation fails because Colour Scales cannot be moved"],ans:1}
+]},
+{id:5,title:"Practical 5 — Charts",subtitle:"Column, Line & Pie from a Dataset",labClass:"lab-5",questions:[
+  {stem:"Rajan wants to compare the market share of 6 products as a percentage of total annual sales. The MOST appropriate chart type is:",tag:"Application",opts:["A clustered column chart with 6 bars","A pie chart with 6 slices, each representing a product's share","A line chart showing each product over 12 months","A scatter plot comparing price vs. volume"],ans:1},
+  {stem:"What is a 'data series' in an Excel chart?",tag:"Definition",opts:["The x-axis label range","A set of related data points plotted as a single element (one bar group, one line, one set of pie slices) that comes from one column or row of data","The chart title text","The gridlines behind the chart area"],ans:1},
+  {stem:"Simran has a line chart showing monthly website traffic for 2023. She wants to add 2024 data as a second line. She should:",tag:"Scenario",opts:["Delete the chart and create a new one with both years","Right-click the chart → Select Data → Add a new Series for 2024 data","Copy the chart and change the values manually","Insert a second chart next to the first"],ans:1},
+  {stem:"A student inserts a Pie chart but notices one tiny sliver that is nearly invisible for the smallest category. The BEST Excel feature to handle this is:",tag:"Technique",opts:["Delete the small category from the data","Use a Pie of Pie or Bar of Pie chart, which explodes small slices into a secondary chart","Switch to a doughnut chart","Zoom in on the chart"],ans:1},
+  {stem:"Which chart type is BEST for showing the correlation between study hours and exam marks across 50 students?",tag:"Application",opts:["Column chart","Pie chart","Line chart with categories","Scatter (XY) chart — shows the relationship between two numerical variables"],ans:3},
+  {stem:"Kiran's column chart has years (2018–2024) on the X-axis but Excel is treating them as data values (plotting them as bars) instead of categories. How does she fix this?",tag:"Debug",opts:["Format the year cells as text before inserting the chart","Right-click the chart → Select Data → Edit Horizontal (Category) Axis Labels → select the year cells","Sort the years in descending order first","Change the chart type to Bar"],ans:1},
+  {stem:"What does the 'Switch Row/Column' button in Select Data do?",tag:"Feature",opts:["Transposes the entire source data table","Swaps which data is used for the horizontal axis labels versus the chart series (legends), changing the chart orientation","Converts a column chart to a bar chart","Rotates the chart 90 degrees"],ans:1},
+  {stem:"A line chart is more appropriate than a column chart when:",tag:"Concept",opts:["You have only 2 data points","The data represents continuous change over time and the trend between points matters","You want to show proportions of a whole","You have more than 20 categories"],ans:1},
+  {stem:"Pooja's pie chart shows percentage labels. She wants them to show the actual values instead. She should:",tag:"Debug",opts:["Delete the data labels and manually type values","Right-click the data labels → Format Data Labels → uncheck Percentage, check Value","Change the chart type to a column chart","Divide all values by 100 in the source data"],ans:1},
+  {stem:"A chart is placed 'as an object in' the current sheet versus 'as a new sheet'. What is the practical difference?",tag:"Concept",opts:["There is no functional difference — it is purely cosmetic","As an object: the chart sits alongside the data on the same sheet; as a new sheet: the chart occupies its own dedicated tab with no visible data","As a new sheet: the chart updates automatically; as an object: it does not","As an object: the chart can be printed; as a new sheet: it cannot"],ans:1},
+  {stem:"Arun updates a value in the data table from 500 to 800. The linked column chart bar does NOT change height. What is the MOST likely cause?",tag:"Cause→Effect",opts:["Column charts require a manual Refresh button click","The chart was created from a different data range — it is not linked to the cell he changed","Charts update only when the workbook is closed and reopened","He must press F9 to force chart recalculation"],ans:1},
+  {stem:"Which of the following BEST describes the 'Chart Area' versus the 'Plot Area' in an Excel chart?",tag:"Definition",opts:["They are the same — both terms refer to the background of the chart","Chart Area is the entire chart object including title, legend, and axes; Plot Area is only the inner region where data is visually plotted","Plot Area includes the legend; Chart Area does not","Chart Area is the background colour; Plot Area is the chart type"],ans:1}
+]},
+{id:6,title:"Practical 6 — Sparklines",subtitle:"In-Cell Trend Indicators",labClass:"lab-6",questions:[
+  {stem:"What is the maximum number of data points a sparkline can display?",tag:"Concept",opts:["12 — one per month","52 — one per week","There is no fixed limit — sparklines can display as many data points as you select in the data range","10 — one per column"],ans:2},
+  {stem:"Rahul wants to show whether weekly sales were above or below zero for each of 8 weeks. The MOST appropriate sparkline type is:",tag:"Application",opts:["Line sparkline — draws a continuous trend","Column sparkline — shows proportional bars","Win/Loss sparkline — shows positive vs. negative as equal-height up/down bars","Area sparkline — fills the area below a line"],ans:2},
+  {stem:"A student applies a sparkline to row 5 (data in B5:M5) and places it in cell N5. She then copies cell N5 down to N6:N20. Each row's sparkline will:",tag:"Scenario",opts:["All show the same data from B5:M5","Each automatically reference its own row's data (B6:M6 for row 6, etc.) because the data range uses relative references","Show an error because sparklines cannot be copied","Show the sum of all rows B5:M20"],ans:1},
+  {stem:"To change the colour of the highest point in a Line sparkline to a distinct colour, you use:",tag:"Feature",opts:["Format Cells → Fill → pick colour for the peak","Sparkline tab → Show group → check High Point → Marker Color → High Point → pick colour","Right-click sparkline → Edit Data → Highlight Peak","Conditional Formatting applied to the sparkline cell"],ans:1},
+  {stem:"Geeta has a sparkline in cell Z1 based on data in A1:Y1. She inserts a new column between A and B. The sparkline's data range:",tag:"Cause→Effect",opts:["Breaks and shows an error","Automatically adjusts to A1:Z1 to include the newly inserted column","Stays fixed at the original A1:Y1 range, ignoring the new column","Deletes itself to prevent incorrect data display"],ans:1},
+  {stem:"Which setting makes all sparklines in a group share the same Y-axis scale so their heights are comparable?",tag:"Advanced",opts:["Formatting → Match Width to Cell","Sparkline tab → Axis → Vertical Axis Minimum/Maximum → Same for All Sparklines","Home → Conditional Formatting → Normalise","This is automatic — sparklines always share the same scale"],ans:1},
+  {stem:"A Win/Loss sparkline shows only up-bars and no down-bars for a set of quiz score differences. What does this tell you?",tag:"Interpretation",opts:["All quiz scores are zero","All score differences are positive — the student consistently improved or scored above baseline on every quiz","The data range is empty","Win/Loss sparklines cannot show differences; she needs a Line sparkline"],ans:1},
+  {stem:"Priya's sparkline appears as a flat horizontal line even though her data has significant variation (e.g., 10, 90, 45, 80, 20). What is the LIKELY cause?",tag:"Debug",opts:["Sparklines automatically average data before plotting","The vertical axis minimum and maximum are both set to the same custom value, compressing all variation to one level — she should reset the axis to Automatic","Line sparklines cannot display ranges greater than 50 units","She selected the wrong sparkline type"],ans:1},
+  {stem:"Mukesh wants to delete a sparkline from cell F7 but pressing the Delete key only clears the cell content without removing the sparkline. Why?",tag:"Misconception",opts:["Sparklines require Administrator permission to delete","Sparklines are not regular cell content — they must be deleted via Sparkline tab → Clear (or right-click the sparkline → Sparklines → Clear Selected Sparklines)","He must first ungroup the sparklines before deleting","Delete key works — he may need to press it twice"],ans:1},
+  {stem:"A Line sparkline is placed in a merged cell that spans two columns. The sparkline:",tag:"Concept",opts:["Cannot be inserted into a merged cell and throws an error","Fills the wider merged cell area, giving more horizontal space to display the trend — it functions normally","Splits into two separate sparklines, one per merged column","Automatically converts to a Column sparkline in merged cells"],ans:1}
+]}
+];
+
+const allQuestions=[];
+sections.forEach(sec=>sec.questions.forEach(q=>allQuestions.push({...q,sectionId:sec.id,labClass:sec.labClass})));
+const TOTAL=allQuestions.length;
+
+let studentInfo={};
+let answers=new Array(TOTAL).fill(null);
+let timerInterval=null;
+let secondsLeft=22*60;
+let quizSubmitted=false;
+let inReviewMode=false;
+
+function startQuiz(){
+  const name=document.getElementById('inp-name').value.trim();
+  const roll=document.getElementById('inp-roll').value.trim().toUpperCase();
+  const section=document.getElementById('inp-section').value;
+  const err=document.getElementById('form-error');
+  if(!name||!roll||!section){err.style.display='block';return;}
+  err.style.display='none';
+  studentInfo={name,roll,section,branch:'BCA',semester:'1st'};
+  document.getElementById('qh-name').textContent=name+' · '+section;
+  renderQuiz();
+  switchScreen('quiz-screen');
+  startTimer();
+  window.scrollTo(0,0);
+}
+
+function renderQuiz(){
+  const L=['A','B','C','D'];
+  let html='',qi=0;
+  sections.forEach(sec=>{
+    html+=`<div class="section-divider ${sec.labClass}"><div class="sec-line"></div><div class="sec-badge ${sec.labClass}">${sec.title}<small>${sec.subtitle}</small></div><div class="sec-line right"></div></div>`;
+    sec.questions.forEach(q=>{
+      const i=qi++;
+      html+=`<div class="q-card ${sec.labClass}" id="qcard-${i}">
+        <div class="q-top">
+          <div class="q-num" id="qnum-${i}">${i+1}</div>
+          <div class="q-stem">${q.stem}</div>
+        </div>
+        <div class="q-tag ${sec.labClass}">${q.tag}</div>
+        <div class="options-grid" id="opts-${i}">
+          ${q.opts.map((o,oi)=>`<button class="opt-btn" id="opt-${i}-${oi}" onclick="selectAnswer(${i},${oi})"><span class="opt-letter">${L[oi]}</span><span>${o}</span></button>`).join('')}
+        </div>
+      </div>`;
+    });
+  });
+  document.getElementById('quiz-content').innerHTML=html;
+}
+
+function selectAnswer(qi,oi){
+  if(quizSubmitted)return;
+  answers[qi]=oi;
+  document.querySelectorAll(`#opts-${qi} .opt-btn`).forEach((b,i)=>b.classList.toggle('selected',i===oi));
+  document.getElementById(`qcard-${qi}`).classList.add('answered');
+  document.getElementById(`qnum-${qi}`).classList.add('done');
+  const done=answers.filter(a=>a!==null).length;
+  document.getElementById('prog-answered').textContent=done+' answered';
+  document.getElementById('prog-fill').style.width=(done/TOTAL*100)+'%';
+}
+
+function startTimer(){
+  timerInterval=setInterval(()=>{
+    secondsLeft--;
+    const m=String(Math.floor(secondsLeft/60)).padStart(2,'0');
+    const s=String(secondsLeft%60).padStart(2,'0');
+    document.getElementById('timer-display').textContent=`${m}:${s}`;
+    if(secondsLeft<=300)document.getElementById('timer-box').classList.add('warning');
+    if(secondsLeft<=0){clearInterval(timerInterval);finalize();}
+  },1000);
+}
+
+function submitQuiz(){
+  const u=answers.filter(a=>a===null).length;
+  const warn=document.getElementById('unanswered-warn');
+  if(u>0&&!warn.dataset.primed){
+    warn.textContent=`⚠ ${u} question${u>1?'s':''} unanswered. Tap here to submit anyway.`;
+    warn.style.display='block';warn.style.cursor='pointer';
+    warn.dataset.primed='1';
+    warn.onclick=()=>{warn.style.display='none';finalize();};
+    return;
+  }
+  finalize();
+}
+
+function finalize(){
+  clearInterval(timerInterval);
+  quizSubmitted=true;
+  let total=0;
+  const secScores=sections.map(()=>0);
+  allQuestions.forEach((q,i)=>{if(answers[i]===q.ans){total++;secScores[q.sectionId-1]++;}});
+  const pct=Math.round(total/TOTAL*100);
+  const pass=pct>=40;
+  let grade='F';
+  if(pct>=90)grade='A+';else if(pct>=80)grade='A';else if(pct>=70)grade='B';
+  else if(pct>=60)grade='C';else if(pct>=50)grade='D';else if(pct>=40)grade='E';
+  const elapsed=22*60-secondsLeft;
+  const timeTaken=`${String(Math.floor(elapsed/60)).padStart(2,'0')}m ${String(elapsed%60).padStart(2,'0')}s`;
+  const submissionId=`${studentInfo.roll}-B2-${grade}-${Date.now().toString(36).toUpperCase()}`;
+  const submittedAt=new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+
+  const secQCounts=sections.map(s=>s.questions.length);
+  const payload={
+    name:studentInfo.name,roll:studentInfo.roll,section:studentInfo.section,
+    branch:studentInfo.branch,semester:studentInfo.semester,
+    score:total,total:TOTAL,percentage:pct,grade,
+    timeTaken,passed:pass,submissionId,submittedAt,
+    quizType:'Lab Practicals Excel Batch 2',
+    ...Object.fromEntries(sections.map((_,i)=>[`p${i+1}`,secScores[i]]))
+  };
+
+  document.getElementById('res-sending').style.display='block';
+  fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}).catch(()=>{}).finally(()=>document.getElementById('res-sending').style.display='none');
+
+  const emojis={'A+':'🏆','A':'🌟','B':'🎯','C':'📚','D':'💪','E':'🤞','F':'📖'};
+  document.getElementById('res-emoji').textContent=emojis[grade];
+  document.getElementById('res-grade').textContent=`${total}/${TOTAL}`;
+  document.getElementById('res-score-label').textContent=`${pct}% · Grade ${grade}`;
+  document.getElementById('res-verdict').innerHTML=pass?`<span class="verdict-pass">✓ PASSED</span>`:`<span class="verdict-fail">✗ Needs Improvement</span>`;
+
+  document.getElementById('res-info-grid').innerHTML=`
+    <div class="result-info-item"><div class="ri-label">Name</div><div class="ri-val">${studentInfo.name}</div></div>
+    <div class="result-info-item"><div class="ri-label">Roll No.</div><div class="ri-val">${studentInfo.roll}</div></div>
+    <div class="result-info-item"><div class="ri-label">Section</div><div class="ri-val">${studentInfo.section}</div></div>
+    <div class="result-info-item"><div class="ri-label">Branch / Sem</div><div class="ri-val">BCA · 1st</div></div>
+    <div class="result-info-item"><div class="ri-label">Time Taken</div><div class="ri-val">${timeTaken}</div></div>
+    <div class="result-info-item"><div class="ri-label">Submitted At</div><div class="ri-val">${submittedAt}</div></div>`;
+
+  const labNames=['PivotTable','PivotChart','Cond. Formatting','Data Bars/Scales','Charts','Sparklines'];
+  document.getElementById('res-breakdown').innerHTML=sections.map((sec,i)=>{
+    const got=secScores[i];
+    const total_q=sec.questions.length;
+    return`<div class="sb-row"><div class="sb-name">${labNames[i]}</div><div class="sb-bar-wrap"><div class="sb-bar-fill" style="width:${got/total_q*100}%"></div></div><div class="sb-score">${got}/${total_q}</div></div>`;
+  }).join('');
+
+  document.getElementById('sub-id-value').textContent=submissionId;
+  switchScreen('result-screen');
+  window.scrollTo(0,0);
+  setTimeout(()=>autoSavePDF(submissionId),1200);
+}
+
+function autoSavePDF(sid){
+  if(typeof html2pdf==='undefined'){window.print();return;}
+  const el=document.getElementById('result-card-el');
+  const filename=`${studentInfo.roll||'student'}-LabB2-${sid||'result'}.pdf`;
+  document.getElementById('pdf-saving').style.display='block';
+  document.getElementById('pdf-done').style.display='none';
+  html2pdf().set({
+    margin:[12,10,12,10],filename,
+    image:{type:'jpeg',quality:.97},
+    html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  }).from(el).save().then(()=>{
+    document.getElementById('pdf-saving').style.display='none';
+    document.getElementById('pdf-done').style.display='block';
+  }).catch(()=>{document.getElementById('pdf-saving').style.display='none';});
+}
+
+function manualSavePDF(){const sid=document.getElementById('sub-id-value').textContent||'result';autoSavePDF(sid);}
+
+function reviewQuiz(){
+  inReviewMode=true;
+  switchScreen('quiz-screen');
+  document.getElementById('submit-section').style.display='none';
+  document.getElementById('qh-name').textContent='📋 Review Mode';
+  document.getElementById('qh-progress-wrap').style.display='none';
+  document.getElementById('timer-box').style.display='none';
+  document.getElementById('review-mode-label').style.display='block';
+  document.getElementById('review-back-btn').style.display='flex';
+  allQuestions.forEach((q,i)=>{
+    document.querySelectorAll(`#opts-${i} .opt-btn`).forEach((btn,oi)=>{
+      btn.disabled=true;
+      if(oi===q.ans){
+        btn.style.background='rgba(14,124,74,.12)';
+        btn.style.borderColor='#0e7c4a';
+        btn.querySelector('.opt-letter').style.background='#0e7c4a';
+        btn.querySelector('.opt-letter').style.color='#fff';
+        btn.querySelector('.opt-letter').style.borderColor='#0e7c4a';
+      }
+      if(answers[i]!==null&&oi===answers[i]&&oi!==q.ans){
+        btn.style.background='rgba(192,57,43,.12)';
+        btn.style.borderColor='#c0392b';
+        btn.querySelector('.opt-letter').style.background='#c0392b';
+        btn.querySelector('.opt-letter').style.color='#fff';
+        btn.querySelector('.opt-letter').style.borderColor='#c0392b';
+      }
+    });
+  });
+  window.scrollTo(0,0);
+}
+
+function backToResults(){
+  inReviewMode=false;
+  document.getElementById('qh-name').textContent=studentInfo.name+' · '+studentInfo.section;
+  document.getElementById('qh-progress-wrap').style.display='block';
+  document.getElementById('timer-box').style.display='flex';
+  document.getElementById('review-mode-label').style.display='none';
+  document.getElementById('review-back-btn').style.display='none';
+  switchScreen('result-screen');
+  window.scrollTo(0,0);
+}
+
+function switchScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
