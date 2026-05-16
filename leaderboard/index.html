@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard · Data Science Quizzes | K.P. Singh · SRHU</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f6fd;--surface:#ffffff;--surface2:#f4f8fe;
+  --blue:#1a56c4;--blue-bright:#2f72e8;--blue-pale:#e8f0fd;
+  --blue-dim:rgba(26,86,196,.10);--blue-border:rgba(26,86,196,.28);
+  --teal:#0d7377;--teal-dim:rgba(13,115,119,.10);--teal-bright:#14a7ac;
+  --violet:#6c3fc5;--violet-dim:rgba(108,63,197,.10);
+  --border:rgba(26,86,196,.22);--border-soft:rgba(0,0,0,.08);
+  --text:#0d1b2a;--muted:rgba(13,27,42,.50);--mint:#0e7c4a;--red:#c0392b;
+  --shadow:rgba(26,86,196,.12);--gold:#c8860a;--gold-pale:#fff8e1;
+  --silver:#7a8fa6;--silver-pale:#eef2f7;--bronze:#9c5a1d;--bronze-pale:#fdf0e4;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 55% 40% at 92% 8%,rgba(26,86,196,.07),transparent),
+    radial-gradient(ellipse 40% 50% at 8% 92%,rgba(108,63,197,.06),transparent);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:repeating-linear-gradient(45deg,rgba(26,86,196,.02) 0,rgba(26,86,196,.02) 1px,transparent 0,transparent 50%);
+  background-size:28px 28px;
+}
+
+/* ── NAV ── */
+.kps-nav{
+  position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 24px;
+  background:rgba(242,246,253,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 2px 20px var(--shadow);
+}
+.kps-nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.kps-nav-logo{width:33px;height:33px;border-radius:50%;object-fit:cover;border:2px solid var(--blue);box-shadow:0 0 10px rgba(26,86,196,.3);}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--blue);line-height:1;}
+.brand-sub{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:2px;}
+.kps-nav-links{display:flex;align-items:center;gap:6px}
+.kps-nav-links a{
+  color:var(--muted);text-decoration:none;font-family:'Fira Code',monospace;
+  font-size:10px;letter-spacing:.6px;padding:5px 12px;border-radius:8px;
+  border:1px solid transparent;transition:all .2s;white-space:nowrap;
+}
+.kps-nav-links a:hover{color:var(--blue);border-color:var(--border);background:var(--blue-dim)}
+.kps-nav-links a.ext{
+  background:linear-gradient(135deg,var(--blue),var(--blue-bright));
+  color:#fff;font-weight:600;border:none;
+  box-shadow:0 2px 12px rgba(26,86,196,.3);
+}
+
+/* ── PAGE WRAPPER ── */
+.page{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:88px 16px 60px;}
+
+/* ── HERO HEADER ── */
+.lb-hero{text-align:center;padding:36px 0 32px;position:relative;}
+.lb-kicker{
+  font-family:'Fira Code',monospace;font-size:9px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--teal);
+  background:var(--teal-dim);border:1px solid rgba(13,115,119,.25);
+  padding:4px 16px;border-radius:20px;display:inline-block;margin-bottom:18px;
+}
+.lb-title{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,6vw,3.4rem);
+  font-weight:700;color:var(--text);line-height:1.1;margin-bottom:10px;
+}
+.lb-title em{color:var(--blue);font-style:italic;}
+.lb-sub{font-size:13px;color:var(--muted);font-weight:300;line-height:1.7;max-width:480px;margin:0 auto 24px;}
+
+/* Last-updated pill */
+.lb-meta{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:6px 16px;
+  font-family:'Fira Code',monospace;font-size:10px;color:var(--muted);
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--teal-bright);animation:pulse 1.4s ease infinite;}
+
+/* ── FILTER BAR ── */
+.filter-bar{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  margin-bottom:32px;
+}
+.filter-btn{
+  font-family:'Fira Code',monospace;font-size:10px;letter-spacing:.8px;
+  padding:7px 18px;border-radius:20px;border:1px solid var(--border-soft);
+  background:var(--surface);color:var(--muted);cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.filter-btn:hover{border-color:var(--border);color:var(--blue);background:var(--blue-pale);}
+.filter-btn.active{
+  background:linear-gradient(135deg,var(--blue),var(--blue-bright));
+  color:#fff;border-color:transparent;
+  box-shadow:0 3px 14px rgba(26,86,196,.35);
+}
+
+/* ── PODIUM (TOP 3) ── */
+.podium-section{margin-bottom:36px;}
+.podium-label{
+  font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:18px;
+}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;}
+
+.podium-slot{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;max-width:220px;
+}
+.podium-card{
+  width:100%;border-radius:16px;padding:20px 14px 16px;
+  text-align:center;position:relative;border:1.5px solid var(--border-soft);
+  background:var(--surface);transition:transform .25s,box-shadow .25s;
+  cursor:default;overflow:hidden;
+}
+.podium-card:hover{transform:translateY(-4px);}
+.podium-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+
+/* 1st */
+.rank-1 .podium-card{
+  border-color:rgba(200,134,10,.4);
+  background:linear-gradient(160deg,#fffdf5 0%,#fff8e1 100%);
+  box-shadow:0 8px 32px rgba(200,134,10,.18),0 2px 8px rgba(200,134,10,.1);
+}
+.rank-1 .podium-card::before{background:linear-gradient(90deg,#f7c84a,#e6a817,#f7c84a);}
+.rank-1 .podium-card:hover{box-shadow:0 16px 48px rgba(200,134,10,.3);}
+
+/* 2nd */
+.rank-2 .podium-card{
+  border-color:rgba(122,143,166,.4);
+  background:linear-gradient(160deg,#f8fafc 0%,#eef2f7 100%);
+  box-shadow:0 6px 24px rgba(122,143,166,.15);
+}
+.rank-2 .podium-card::before{background:linear-gradient(90deg,#b0bec5,#90a4ae,#b0bec5);}
+
+/* 3rd */
+.rank-3 .podium-card{
+  border-color:rgba(156,90,29,.3);
+  background:linear-gradient(160deg,#fdf8f3 0%,#fdf0e4 100%);
+  box-shadow:0 6px 24px rgba(156,90,29,.12);
+}
+.rank-3 .podium-card::before{background:linear-gradient(90deg,#d4956a,#b86e3a,#d4956a);}
+
+.podium-trophy{font-size:28px;display:block;margin-bottom:8px;line-height:1;}
+.podium-num{
+  font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;
+  line-height:1;margin-bottom:2px;
+}
+.rank-1 .podium-num{color:var(--gold);}
+.rank-2 .podium-num{color:var(--silver);}
+.rank-3 .podium-num{color:var(--bronze);}
+
+.podium-name{
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;
+  color:var(--text);margin-bottom:3px;line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;
+}
+.podium-roll{font-family:'Fira Code',monospace;font-size:9px;color:var(--muted);letter-spacing:.5px;margin-bottom:10px;}
+.podium-score{
+  font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;
+  color:var(--blue);line-height:1;margin-bottom:2px;
+}
+.podium-pct{font-family:'Fira Code',monospace;font-size:10px;color:var(--muted);}
+.podium-grade{
+  display:inline-block;margin-top:8px;
+  font-family:'Fira Code',monospace;font-size:10px;font-weight:600;
+  padding:2px 10px;border-radius:10px;letter-spacing:.5px;
+}
+.grade-A-plus{background:rgba(14,124,74,.12);color:var(--mint);}
+.grade-A{background:rgba(26,86,196,.1);color:var(--blue);}
+.grade-B{background:rgba(108,63,197,.1);color:var(--violet);}
+.grade-C,.grade-D,.grade-E{background:rgba(200,134,10,.1);color:var(--gold);}
+.grade-F{background:rgba(192,57,43,.1);color:var(--red);}
+
+/* Podium base bars */
+.podium-base{
+  border-radius:8px 8px 0 0;width:90%;
+  font-family:'Fira Code',monospace;font-size:10px;font-weight:600;
+  color:#fff;display:flex;align-items:center;justify-content:center;letter-spacing:1px;
+}
+.rank-1 .podium-base{height:52px;background:linear-gradient(180deg,#e6a817,#c8860a);}
+.rank-2 .podium-base{height:36px;background:linear-gradient(180deg,#90a4ae,#7a8fa6);}
+.rank-3 .podium-base{height:24px;background:linear-gradient(180deg,#d4956a,#b86e3a);}
+
+/* ── FULL TABLE ── */
+.table-section{margin-top:8px;}
+.table-header-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.table-title{
+  font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--text);
+}
+.table-count{
+  font-family:'Fira Code',monospace;font-size:10px;color:var(--muted);
+  background:var(--surface2);border:1px solid var(--border-soft);
+  padding:4px 12px;border-radius:12px;
+}
+
+.lb-table{width:100%;border-collapse:separate;border-spacing:0;}
+.lb-table thead th{
+  font-family:'Fira Code',monospace;font-size:9px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--muted);
+  padding:10px 12px;text-align:left;
+  border-bottom:1px solid var(--border-soft);
+  background:var(--surface2);
+}
+.lb-table thead th:first-child{border-radius:10px 0 0 0;}
+.lb-table thead th:last-child{border-radius:0 10px 0 0;text-align:right;}
+
+.lb-table tbody tr{
+  background:var(--surface);
+  transition:background .18s;
+}
+.lb-table tbody tr:hover{background:var(--blue-pale);}
+.lb-table tbody tr.rank-highlight-1{background:var(--gold-pale);}
+.lb-table tbody tr.rank-highlight-2{background:var(--silver-pale);}
+.lb-table tbody tr.rank-highlight-3{background:var(--bronze-pale);}
+.lb-table tbody tr.rank-highlight-1:hover{background:#fff3c0;}
+
+.lb-table td{
+  padding:12px 12px;font-size:13px;
+  border-bottom:1px solid rgba(0,0,0,.04);
+  vertical-align:middle;
+}
+.lb-table tbody tr:last-child td{border-bottom:none;}
+.lb-table tbody tr:last-child td:first-child{border-radius:0 0 0 10px;}
+.lb-table tbody tr:last-child td:last-child{border-radius:0 0 10px 0;}
+
+.rank-badge{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fira Code',monospace;font-size:11px;font-weight:600;
+  background:var(--surface2);color:var(--muted);border:1px solid var(--border-soft);
+}
+.rank-badge.r1{background:var(--gold-pale);color:var(--gold);border-color:rgba(200,134,10,.3);}
+.rank-badge.r2{background:var(--silver-pale);color:var(--silver);border-color:rgba(122,143,166,.3);}
+.rank-badge.r3{background:var(--bronze-pale);color:var(--bronze);border-color:rgba(156,90,29,.25);}
+
+.td-name{font-weight:600;color:var(--text);}
+.td-roll{font-family:'Fira Code',monospace;font-size:11px;color:var(--muted);}
+.td-sec{
+  font-family:'Fira Code',monospace;font-size:10px;
+  background:var(--blue-pale);color:var(--blue);
+  border:1px solid rgba(26,86,196,.2);
+  padding:2px 8px;border-radius:8px;white-space:nowrap;
+}
+.td-score{
+  font-family:'Cormorant Garamond',serif;font-size:16px;
+  font-weight:700;color:var(--blue);
+}
+.td-pct{font-family:'Fira Code',monospace;font-size:11px;color:var(--muted);}
+.td-time{font-family:'Fira Code',monospace;font-size:11px;color:var(--muted);text-align:right;}
+
+/* ── SCORE BAR inside table ── */
+.score-bar-wrap{display:flex;align-items:center;gap:8px}
+.score-bar{height:4px;width:64px;background:rgba(0,0,0,.07);border-radius:5px;overflow:hidden;flex-shrink:0;}
+.score-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--blue),var(--teal-bright));}
+
+/* ── EMPTY / LOADING STATES ── */
+.state-card{
+  background:var(--surface);border:1.5px dashed var(--border);
+  border-radius:16px;padding:48px 24px;text-align:center;
+}
+.state-icon{font-size:36px;display:block;margin-bottom:12px;}
+.state-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--text);margin-bottom:6px;}
+.state-desc{font-size:13px;color:var(--muted);font-weight:300;}
+
+.spinner{
+  width:32px;height:32px;border-radius:50%;
+  border:3px solid var(--blue-pale);border-top-color:var(--blue);
+  animation:spin .8s linear infinite;margin:0 auto 14px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SECTION WRAPPER ── */
+.lb-surface{
+  background:var(--surface);border:1px solid var(--border-soft);
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(26,86,196,.07);
+}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;padding:28px 16px;
+  font-family:'Fira Code',monospace;font-size:10px;letter-spacing:.5px;
+  color:var(--muted);border-top:1px solid var(--border-soft);margin-top:40px;
+}
+footer a{color:var(--blue);text-decoration:none;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .podium{flex-direction:column;align-items:center;}
+  .podium-slot{max-width:100%;width:100%;}
+  .rank-2,.rank-3{order:1;}
+  .rank-1{order:0;}
+  .podium-base{display:none;}
+  .lb-table thead th.hide-m,.lb-table td.hide-m{display:none;}
+  .kps-nav-links a.hide-mobile{display:none;}
+}
+
+/* ── ENTRANCE ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.lb-hero    {animation:fadeUp .5s ease both;}
+.filter-bar {animation:fadeUp .5s .1s ease both;}
+.podium-section{animation:fadeUp .5s .18s ease both;}
+.table-section  {animation:fadeUp .5s .28s ease both;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="kps-nav">
+  <a href="https://kpsingh.in/datascience_sem2" class="kps-nav-brand">
+    <img src="../../KP_Singh.png" onerror="this.style.display='none'" alt="KP" class="kps-nav-logo">
+    <div>
+      <div class="brand-name">K.P. Singh</div>
+      <div class="brand-sub">SRHU · BCA Data Science</div>
+    </div>
+  </a>
+  <div class="kps-nav-links">
+    <a href="https://kpsingh.in/datascience_sem2" class="hide-mobile">← Semester 2</a>
+    <a href="https://kpsingh.in" target="_blank" rel="noopener" class="ext">kpsingh.in ↗</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="lb-hero">
+    <div class="lb-kicker">BCA · 2nd Semester · Data Science</div>
+    <h1 class="lb-title">Quiz <em>Leaderboard</em></h1>
+    <p class="lb-sub">Top performers across all unit quizzes. Rankings update live — only your best attempt per quiz counts.</p>
+    <div class="lb-meta">
+      <span class="pulse-dot"></span>
+      <span id="meta-text">Loading…</span>
+    </div>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'all')">All Quizzes</button>
+    <button class="filter-btn" data-filter="EDA" onclick="setFilter(this,'EDA')">Unit III · EDA</button>
+    <!-- Add more unit buttons below as you create more quizzes:
+    <button class="filter-btn" data-filter="Unit I" onclick="setFilter(this,'Unit I')">Unit I</button>
+    -->
+  </div>
+
+  <!-- PODIUM: TOP 3 -->
+  <div class="podium-section" id="podium-section">
+    <div class="podium-label">🏆 &nbsp;Top Performers</div>
+    <div id="podium-wrap">
+      <div class="state-card">
+        <div class="spinner"></div>
+        <div class="state-title">Loading leaderboard…</div>
+        <div class="state-desc">Fetching live data from records</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL TABLE -->
+  <div class="table-section" id="table-section" style="display:none;">
+    <div class="table-header-row">
+      <div class="table-title">Full Rankings</div>
+      <div class="table-count" id="table-count">— entries</div>
+    </div>
+    <div class="lb-surface">
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th style="width:44px">#</th>
+            <th>Student</th>
+            <th class="hide-m">Section</th>
+            <th>Score</th>
+            <th class="hide-m">Grade</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="lb-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<footer>
+  © 2025 K.P. Singh · <a href="https://kpsingh.in">kpsingh.in</a> · Swami Rama Himalayan University
+</footer>
+
+<script>
+// ── CONFIG — same URL as in your quiz file ────────────────────────
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxMZvDmBevyU4Tjd80uDIz2yPxium7VTyEeLJ6qr6invGagEVteRZtIn6TJz-EweeXleQ/exec';
+const TOP_DISPLAY = 10;
+// ─────────────────────────────────────────────────────────────────
+
+let currentFilter = 'all';
+let allData       = [];
+
+const GRADE_CLASS = {
+  'A+':'grade-A-plus','A':'grade-A','B':'grade-B',
+  'C':'grade-C','D':'grade-D','E':'grade-E','F':'grade-F'
+};
+const RANK_EMOJI = { 1:'🥇', 2:'🥈', 3:'🥉' };
+
+async function fetchLeaderboard(quizFilter) {
+  const param = quizFilter && quizFilter !== 'all' ? `&quiz=${encodeURIComponent(quizFilter)}` : '';
+  const url   = `${SHEET_URL}?action=leaderboard&top=${TOP_DISPLAY}${param}`;
+  const res   = await fetch(url);
+  const json  = await res.json();
+  if (json.status !== 'ok') throw new Error(json.message || 'Server error');
+  return json.data || [];
+}
+
+async function load(filter) {
+  currentFilter = filter;
+  setPodiumLoading();
+
+  try {
+    const data = await fetchLeaderboard(filter);
+    allData = data;
+    renderPodium(data.slice(0, 3));
+    renderTable(data);
+    const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('meta-text').textContent = `Updated at ${now} · ${data.length} entries`;
+  } catch (err) {
+    renderError(err.message);
+  }
+}
+
+function setPodiumLoading() {
+  document.getElementById('podium-wrap').innerHTML = `
+    <div class="state-card">
+      <div class="spinner"></div>
+      <div class="state-title">Loading leaderboard…</div>
+      <div class="state-desc">Fetching from Google Sheets</div>
+    </div>`;
+  document.getElementById('table-section').style.display = 'none';
+}
+
+function renderPodium(top3) {
+  if (!top3.length) {
+    document.getElementById('podium-wrap').innerHTML = `
+      <div class="state-card">
+        <span class="state-icon">📭</span>
+        <div class="state-title">No submissions yet</div>
+        <div class="state-desc">Be the first to attempt the quiz!</div>
+      </div>`;
+    return;
+  }
+
+  // Reorder: 2nd | 1st | 3rd  (classic podium layout)
+  const order = [
+    { slot: top3[1], rank: 2 },
+    { slot: top3[0], rank: 1 },
+    { slot: top3[2], rank: 3 },
+  ];
+
+  const slots = order.map(({ slot, rank }) => {
+    if (!slot) return `<div class="podium-slot rank-${rank}"></div>`;
+    const gc = GRADE_CLASS[slot.grade] || 'grade-C';
+    return `
+      <div class="podium-slot rank-${rank}">
+        <div class="podium-card">
+          <span class="podium-trophy">${RANK_EMOJI[rank]}</span>
+          <div class="podium-num">${rank}</div>
+          <div class="podium-name" title="${slot.name}">${slot.name}</div>
+          <div class="podium-roll">${slot.roll} · ${slot.section}</div>
+          <div class="podium-score">${slot.score}<span style="font-size:14px;color:var(--muted)">/${slot.total}</span></div>
+          <div class="podium-pct">${slot.pct}%</div>
+          <div class="podium-grade ${gc}">${slot.grade}</div>
+        </div>
+        <div class="podium-base">${rank === 1 ? '1st' : rank === 2 ? '2nd' : '3rd'}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('podium-wrap').innerHTML = `<div class="podium">${slots}</div>`;
+}
+
+function renderTable(data) {
+  if (!data.length) {
+    document.getElementById('table-section').style.display = 'none';
+    return;
+  }
+  document.getElementById('table-section').style.display = 'block';
+  document.getElementById('table-count').textContent = `${data.length} entries`;
+
+  const gc = g => GRADE_CLASS[g] || 'grade-C';
+  const rb = r => r <= 3 ? `r${r}` : '';
+
+  document.getElementById('lb-tbody').innerHTML = data.map((row, i) => {
+    const hl = i < 3 ? `rank-highlight-${i+1}` : '';
+    const pct = row.pct || 0;
+    return `
+      <tr class="${hl}">
+        <td><div class="rank-badge ${rb(row.rank)}">${row.rank}</div></td>
+        <td>
+          <div class="td-name">${row.name}</div>
+          <div class="td-roll">${row.roll}</div>
+        </td>
+        <td class="hide-m"><span class="td-sec">${row.section}</span></td>
+        <td>
+          <div class="score-bar-wrap">
+            <span class="td-score">${row.score}/${row.total}</span>
+            <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+            <span class="td-pct">${pct}%</span>
+          </div>
+        </td>
+        <td class="hide-m"><span class="podium-grade ${gc(row.grade)}">${row.grade}</span></td>
+        <td class="td-time">${row.timeTaken}</td>
+      </tr>`;
+  }).join('');
+}
+
+function renderError(msg) {
+  document.getElementById('podium-wrap').innerHTML = `
+    <div class="state-card">
+      <span class="state-icon">⚠️</span>
+      <div class="state-title">Couldn't load data</div>
+      <div class="state-desc">${msg || 'Check your Apps Script URL and deployment settings.'}</div>
+    </div>`;
+  document.getElementById('meta-text').textContent = 'Error loading data';
+}
+
+function setFilter(btn, filter) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  load(filter);
+}
+
+// Auto-refresh every 60 seconds
+load('all');
+setInterval(() => load(currentFilter), 60000);
+</script>
+</body>
+</html>
